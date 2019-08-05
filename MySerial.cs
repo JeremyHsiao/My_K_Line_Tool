@@ -62,6 +62,19 @@ namespace MySerialLibrary
             GC.SuppressFinalize(this);
         }
 
+        static public List<string> FindAllSerialPort()
+        {
+            List<string> ListSerialPort = new List<string>();
+
+            foreach (string comport_s in SerialPort.GetPortNames())
+            {
+                ListSerialPort.Add(comport_s);
+            }
+
+            return ListSerialPort;
+        }
+
+
         public Boolean OpenPort()
         {
             Boolean bRet = false;
