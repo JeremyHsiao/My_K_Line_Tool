@@ -115,8 +115,7 @@ namespace K_Line_Test
         private int ExpectedDataListLen;
         private uint msg_field_index;
 
-        public ProcessBlockMessage() { BlockMessageInProcess = new BlockMessage(); StartNewProcess(); }
-
+        // Private function
         private void StartNewProcess()
         {
             BlockMessageInProcess.ClearBlockMessage();
@@ -125,24 +124,55 @@ namespace K_Line_Test
             Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
         }
 
-        public BlockMessage GetBlockMessage() { return BlockMessageInProcess; }
-
         private bool ProcessFormat1(byte next_byte)
         {
             bool bRet = false;
-            // To-be-implemented when supported
+            switch ((MSG_STAGE_FORMAT_01)msg_field_index)
+            {
+                case MSG_STAGE_FORMAT_01.FMT:
+                    BlockMessageInProcess.SetFmt(next_byte);
+                    ExpectedDataListLen = (next_byte & 0x3f) - 1;           // minus SID byte
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msg_field_index++;
+                    break;
+                case MSG_STAGE_FORMAT_01.SID:
+                    BlockMessageInProcess.SetSID(next_byte);
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    if (ExpectedDataListLen > 0)
+                    {
+                        msg_field_index++;
+                    }
+                    else
+                    {
+                        msg_field_index += 2;
+                    }
+                    break;
+                case MSG_STAGE_FORMAT_01.Data:
+                    BlockMessageInProcess.AddToDataList(next_byte);
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
+                    {
+                        msg_field_index++;
+                    }
+                    break;
+                case MSG_STAGE_FORMAT_01.CS:
+                    byte current_checksum = BlockMessageInProcess.GetCheckSum();
+                    bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
+                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                    msg_field_index++;
+                    break;
+            }
             return bRet;
         }
 
         private bool ProcessFormat2(byte next_byte)
         {
             bool bRet = false;
-
-            switch((MSG_STAGE_FORMAT_02)msg_field_index)
+            switch ((MSG_STAGE_FORMAT_02)msg_field_index)
             {
                 case MSG_STAGE_FORMAT_02.FMT:
                     BlockMessageInProcess.SetFmt(next_byte);
-                    ExpectedDataListLen = (next_byte&0x3f) - 1;           // minus SID byte
+                    ExpectedDataListLen = (next_byte & 0x3f) - 1;           // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
                     break;
@@ -189,14 +219,52 @@ namespace K_Line_Test
         private bool ProcessFormat3(byte next_byte)
         {
             bool bRet = false;
-            // To-be-implemented when supported
+            switch ((MSG_STAGE_FORMAT_03)msg_field_index)
+            {
+                case MSG_STAGE_FORMAT_03.FMT:
+                    BlockMessageInProcess.SetFmt(next_byte);
+                    ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msg_field_index++;
+                    break;
+                case MSG_STAGE_FORMAT_03.Len:
+                    BlockMessageInProcess.SetLen(next_byte);
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msg_field_index++;
+                    break;
+                case MSG_STAGE_FORMAT_03.SID:
+                    BlockMessageInProcess.SetSID(next_byte);
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    if (ExpectedDataListLen > 0)
+                    {
+                        msg_field_index++;
+                    }
+                    else
+                    {
+                        msg_field_index += 2;
+                    }
+                    break;
+                case MSG_STAGE_FORMAT_03.Data:
+                    BlockMessageInProcess.AddToDataList(next_byte);
+                    BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
+                    {
+                        msg_field_index++;
+                    }
+                    break;
+                case MSG_STAGE_FORMAT_03.CS:
+                    byte current_checksum = BlockMessageInProcess.GetCheckSum();
+                    bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
+                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                    msg_field_index++;
+                    break;
+            }
             return bRet;
         }
 
         private bool ProcessFormat4(byte next_byte)
         {
             bool bRet = false;
-
             switch ((MSG_STAGE_FORMAT_04)msg_field_index)
             {
                 case MSG_STAGE_FORMAT_04.FMT:
@@ -237,7 +305,7 @@ namespace K_Line_Test
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
                     {
-                       msg_field_index++;
+                        msg_field_index++;
                     }
                     break;
                 case MSG_STAGE_FORMAT_04.CS:
@@ -249,6 +317,9 @@ namespace K_Line_Test
             }
             return bRet;
         }
+
+        // Public function
+        public ProcessBlockMessage() { BlockMessageInProcess = new BlockMessage(); StartNewProcess(); }
 
         public bool ProcessNextByte(byte next_byte)
         {
@@ -314,5 +385,7 @@ namespace K_Line_Test
             }
             return bRet;
         }
+
+        public BlockMessage GetBlockMessage() { return BlockMessageInProcess; }
     }
 }
