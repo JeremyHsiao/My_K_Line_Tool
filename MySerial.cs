@@ -80,8 +80,8 @@ namespace MySerialLibrary
             Boolean bRet = false;
             _serialPort.Handshake = Handshake.None;
             _serialPort.Encoding = Encoding.UTF8;
-            _serialPort.ReadTimeout = 500;
-            _serialPort.WriteTimeout = 500;
+            _serialPort.ReadTimeout = 1000;
+            _serialPort.WriteTimeout = 1000;
             _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
             try
@@ -141,96 +141,25 @@ namespace MySerialLibrary
         // Start of read part
         //
 
-        enum ENUM_RX_BUFFER_CHAR_STATUS
-        {
-            EMPTY_BUFFER = 0,
-            CHAR_RECEIVED,
-            DISCARD_CHAR_RECEIVED,
-            MAX_STATUS_NO
-        };
-
-        public Boolean ReadLine_Ready() { return (UART_READ_MSG_QUEUE.Count > 0) ? true : false; }
-        public string ReadLine_Result() { return UART_READ_MSG_QUEUE.Dequeue(); }
-
-        private bool Wait_Serial_Input = false;
-        private Queue<char> Rx_char_buffer_QUEUE = new Queue<char>();
-        private ENUM_RX_BUFFER_CHAR_STATUS RX_Proc_Status = ENUM_RX_BUFFER_CHAR_STATUS.EMPTY_BUFFER;
+        private Queue<byte> Rx_byte_buffer_QUEUE = new Queue<byte>();
         private Queue<string> UART_READ_MSG_QUEUE = new Queue<string>();
         public Queue<string> LOG_QUEUE = new Queue<string>();
+
+        public byte GetRxByte() { byte ret_byte = Rx_byte_buffer_QUEUE.Dequeue(); return ret_byte; }
+        public bool IsRxEmpty() { return (Rx_byte_buffer_QUEUE.Count<=0) ? true : false; }
 
         private void Start_SerialReadThread()
         {
             LOG_QUEUE.Clear();
             UART_READ_MSG_QUEUE.Clear();
-            //Temp_MSG_QUEUE.Clear();
-            Rx_char_buffer_QUEUE.Clear();
-            RX_Proc_Status = ENUM_RX_BUFFER_CHAR_STATUS.EMPTY_BUFFER;
-            Wait_Serial_Input = false;
-        }
+            Rx_byte_buffer_QUEUE.Clear();
+         }
 
         private void Stop_SerialReadThread()
         {
             LOG_QUEUE.Clear();
             UART_READ_MSG_QUEUE.Clear();
-            Rx_char_buffer_QUEUE.Clear();
-            RX_Proc_Status = ENUM_RX_BUFFER_CHAR_STATUS.EMPTY_BUFFER;
-            Wait_Serial_Input = false;
-        }
-
-        public void Start_ReadLine()
-        {
-            Wait_Serial_Input = true;
-        }
-
-        public void Abort_ReadLine()
-        {
-            Wait_Serial_Input = false;
-        }
-
-        // This Handler is for reading a whole line
-        private static void DataReceivedHandler_ReadLine(object sender, SerialDataReceivedEventArgs e)
-        {
-            // Find out which serial port --> which myserial
-            SerialPort sp = (SerialPort)sender;
-            MySerialDictionary.TryGetValue(sp.PortName, out Object myserial_serial_obj);
-            MySerial myserial = (MySerial)myserial_serial_obj;
-            //Rx_char_buffer_QUEUE
-            int buf_len = sp.BytesToRead;
-            if (buf_len > 0)
-            {
-                // Read in all char
-                char[] input_buf = new char[buf_len];
-                sp.Read(input_buf, 0, buf_len);
-
-                {
-                    int ch_index = 0;
-                    while (ch_index < buf_len)
-                    {
-                        char ch = input_buf[ch_index];
-                        if (ch == '\n')
-                        {
-                            if (myserial.Wait_Serial_Input)
-                            {
-                                char[] temp_char_array = new char[myserial.Rx_char_buffer_QUEUE.Count];
-                                myserial.Rx_char_buffer_QUEUE.CopyTo(temp_char_array, 0);
-                                myserial.Rx_char_buffer_QUEUE.Clear();
-                                string temp_str = new string(temp_char_array);
-                                myserial.UART_READ_MSG_QUEUE.Enqueue(temp_str);
-                                myserial.Wait_Serial_Input = false;
-                            }
-                            else
-                            {
-                                myserial.Rx_char_buffer_QUEUE.Clear();
-                            }
-                        }
-                        else
-                        {
-                            myserial.Rx_char_buffer_QUEUE.Enqueue(ch);
-                        }
-                        ch_index++;
-                    }
-                }
-            }
+            Rx_byte_buffer_QUEUE.Clear();
         }
 
         // This Handler is for reading all input without wating for a whole line
@@ -245,20 +174,19 @@ namespace MySerialLibrary
             if (buf_len > 0)
             {
                 // Read in all char
-                char[] input_buf = new char[buf_len];
+                byte[] input_buf = new byte[buf_len];
                 sp.Read(input_buf, 0, buf_len);
                 {
                     int ch_index = 0;
                     while (ch_index < buf_len)
                     {
-                        char ch = input_buf[ch_index];
-                        myserial.Rx_char_buffer_QUEUE.Enqueue(ch);
-                        }
+                        byte byte_data = input_buf[ch_index];
+                        myserial.Rx_byte_buffer_QUEUE.Enqueue(byte_data);
                         ch_index++;
                     }
                 }
             }
-
+        }
         //
         // End of read part
         //

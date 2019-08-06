@@ -15,6 +15,8 @@ namespace K_Line_Test
     {
 
         private MySerial MySerialPort = new MySerial();
+        private List<BlockMessage> MyBlockMessageList = new List<BlockMessage>();
+        private ProcessBlockMessage MyProcessBlockMessage = new ProcessBlockMessage();
 
         public Form_K_Line()
         {
@@ -141,6 +143,7 @@ namespace K_Line_Test
                     //BlueRat_UART_Exception_status = false;
                     UpdateToDisconnectButton();
                     DisableRefreshCOMButton();
+                    tmr_FetchingUARTInput.Enabled = true;
                 }
                 else
                 {
@@ -160,8 +163,25 @@ namespace K_Line_Test
                 {
                     // Error message
                 }
+                tmr_FetchingUARTInput.Enabled = false;
             }
         }
 
+        private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
+        {
+            bool IsMessageReady = false;
+            // Regularly polling request message
+            while (!MySerialPort.IsRxEmpty())
+            {
+                byte data = (byte) MySerialPort.GetRxByte();
+                Console.WriteLine(data);
+                IsMessageReady = MyProcessBlockMessage.ProcessNextByte(data);
+                if(IsMessageReady)
+                {
+                    MyBlockMessageList.Add(MyProcessBlockMessage.GetBlockMessage());
+                    IsMessageReady = false;
+                }
+            }
+        }
     }
 }

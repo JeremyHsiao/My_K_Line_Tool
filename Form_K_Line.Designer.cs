@@ -28,9 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnConnectionControl = new System.Windows.Forms.Button();
             this.lstSerialComPort = new System.Windows.Forms.ListBox();
             this.btnRefreshCOMNo = new System.Windows.Forms.Button();
+            this.rtbKLineData = new System.Windows.Forms.RichTextBox();
+            this.tmr_FetchingUARTInput = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // btnConnectionControl
@@ -64,11 +67,25 @@
             this.btnRefreshCOMNo.UseVisualStyleBackColor = true;
             this.btnRefreshCOMNo.Click += new System.EventHandler(this.BtnRefreshCOMNo_Click);
             // 
+            // rtbKLineData
+            // 
+            this.rtbKLineData.Location = new System.Drawing.Point(12, 64);
+            this.rtbKLineData.Name = "rtbKLineData";
+            this.rtbKLineData.ReadOnly = true;
+            this.rtbKLineData.Size = new System.Drawing.Size(760, 485);
+            this.rtbKLineData.TabIndex = 22;
+            this.rtbKLineData.Text = "";
+            // 
+            // tmr_FetchingUARTInput
+            // 
+            this.tmr_FetchingUARTInput.Tick += new System.EventHandler(this.Tmr_FetchingUARTInput_Tick);
+            // 
             // Form_K_Line
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 561);
+            this.Controls.Add(this.rtbKLineData);
             this.Controls.Add(this.btnConnectionControl);
             this.Controls.Add(this.lstSerialComPort);
             this.Controls.Add(this.btnRefreshCOMNo);
@@ -83,6 +100,8 @@
         private System.Windows.Forms.Button btnConnectionControl;
         private System.Windows.Forms.ListBox lstSerialComPort;
         private System.Windows.Forms.Button btnRefreshCOMNo;
+        private System.Windows.Forms.RichTextBox rtbKLineData;
+        private System.Windows.Forms.Timer tmr_FetchingUARTInput;
     }
 }
 

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockMessage.cs" />
     <Compile Include="Form_K_Line.cs">
       <SubType>Form</SubType>
     </Compile>
