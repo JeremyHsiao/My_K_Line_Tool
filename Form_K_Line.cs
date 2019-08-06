@@ -45,56 +45,6 @@ namespace K_Line_Test
             }
         }
 
-        //private void UpdateRCFunctionButtonAfterConnection()
-        //{
-        //    if ((MyBlueRat.CheckConnection() == true))
-        //    {
-        //        if ((RedRatData != null) && (RedRatData.SignalDB != null) && (RedRatData.SelectedDevice != null) && (RedRatData.SelectedSignal != null))
-        //        {
-        //            btnSingleRCPressed.Enabled = true;
-        //        }
-        //        else
-        //        {
-        //            btnSingleRCPressed.Enabled = false;
-        //        }
-        //        btnCheckHeartBeat.Enabled = true;
-        //        btnStopRCButton.Enabled = true;
-        //        btnRepeatRC.Enabled = true;
-        //    }
-        //}
-
-        //private void UpdateRCFunctionButtonAfterDisconnection()
-        //{
-        //    btnSingleRCPressed.Enabled = false;
-        //    btnCheckHeartBeat.Enabled = false;
-        //    btnStopRCButton.Enabled = false;
-        //}
-
-        //private void UndoTemoparilyDisbleAllRCFunctionButtons()
-        //{
-        //    if ((RedRatData != null) && (RedRatData.SignalDB != null) && (RedRatData.SelectedDevice != null) && (RedRatData.SelectedSignal != null))
-        //    {
-        //        btnSingleRCPressed.Enabled = true;
-        //    }
-        //    else
-        //    {
-        //        btnSingleRCPressed.Enabled = false;
-        //    }
-        //    btnCheckHeartBeat.Enabled = true;
-        //    btnStopRCButton.Enabled = true;
-        //    btnRepeatRC.Enabled = true;
-        //    btnConnectionControl.Enabled = true;
-        //}
-
-        //private void TemoparilyDisbleAllRCFunctionButtons()
-        //{
-        //    btnSingleRCPressed.Enabled = false;
-        //    btnCheckHeartBeat.Enabled = false;
-        //    btnStopRCButton.Enabled = false;
-        //    btnRepeatRC.Enabled = false;
-        //    btnConnectionControl.Enabled = false;
-        //}
-
         private void EnableRefreshCOMButton()
         {
             btnRefreshCOMNo.Enabled = true;
