@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace K_Line_Test
+namespace BlockMessageLibrary
 {
     // enum
     enum FORMAT_ID
