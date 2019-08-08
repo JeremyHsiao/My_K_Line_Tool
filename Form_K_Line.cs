@@ -120,21 +120,14 @@ namespace K_Line_Test
 
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
         {
-            bool IsMessageReady = false;
             // Regularly polling request message
-            while (!MySerialPort.IsRxEmpty())
+            while (MySerialPort.KLineBlockMessageList.Count()>0)
             {
-                byte data = (byte) MySerialPort.GetRxByte();
-                Console.WriteLine(data);
-                IsMessageReady = MyProcessBlockMessage.ProcessNextByte(data);
-                if(IsMessageReady)
-                {
-                    BlockMessage new_message = MyProcessBlockMessage.GetBlockMessage();
-                    String new_message_in_string = MyProcessBlockMessage.GetBlockMessageString();
-                    MyBlockMessageList.Add(new_message);
-                    rtbKLineData.AppendText(new_message_in_string + "\n" );
-                    IsMessageReady = false;
-                }
+                BlockMessage message = MySerialPort.KLineBlockMessageList[0];
+                MySerialPort.KLineBlockMessageList.RemoveAt(0);
+                String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
+                MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
+                rtbKLineData.AppendText(message_in_string + "\n" );
             }
         }
     }

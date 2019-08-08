@@ -78,6 +78,7 @@
             // 
             // tmr_FetchingUARTInput
             // 
+            this.tmr_FetchingUARTInput.Interval = 25;
             this.tmr_FetchingUARTInput.Tick += new System.EventHandler(this.Tmr_FetchingUARTInput_Tick);
             // 
             // Form_K_Line

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using BlockMessageLibrary;
 
 namespace MySerialLibrary
 {
@@ -34,7 +35,7 @@ namespace MySerialLibrary
             K_LINE
         }
 
-        private RX_PROCESSOR Rx_Processor_Selection = RX_PROCESSOR.ENQUEUE;              // ENQUEUE
+        private RX_PROCESSOR Rx_Processor_Selection = RX_PROCESSOR.K_LINE;              // ENQUEUE
 
         public const int Serial_BaudRate = (int)BAUD_RATE_LIST.BR_K_Line;  // BAUD_RATE_LIST.BR_115200;
         public const Parity Serial_Parity = Parity.None;
@@ -97,9 +98,9 @@ namespace MySerialLibrary
                     _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
                     break;
                 case RX_PROCESSOR.K_LINE:
+                    _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler_KLine);
                     break;
                 case RX_PROCESSOR.READLINE:
-                    _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler_KLine);
                     // To-be-added.
                     break;
             }
@@ -208,6 +209,10 @@ namespace MySerialLibrary
             }
         }
 
+        public List<BlockMessage> KLineBlockMessageList = new List<BlockMessage>();
+        public List<String> KLineBlockMessageInStringList = new List<String>();
+        private ProcessBlockMessage KLineKWP2000Process = new ProcessBlockMessage();
+
         private static void DataReceivedHandler_KLine(object sender, SerialDataReceivedEventArgs e)
         {
             // Find out which serial port --> which myserial
@@ -226,7 +231,16 @@ namespace MySerialLibrary
                     while (ch_index < buf_len)
                     {
                         byte byte_data = input_buf[ch_index];
-                        // Call-out K-Line Processor
+                        bool IsMessageReady = false;
+                        IsMessageReady = myserial.KLineKWP2000Process.ProcessNextByte(byte_data);
+                        if (IsMessageReady)
+                        {
+                           BlockMessage new_message = myserial.KLineKWP2000Process.GetBlockMessage();
+                           String new_message_in_string = myserial.KLineKWP2000Process.GetBlockMessageString();
+                           myserial.KLineBlockMessageList.Add(new_message);
+                           myserial.KLineBlockMessageInStringList.Add(new_message_in_string);
+                           IsMessageReady = false;
+                        }
                         ch_index++;
                     }
                 }
