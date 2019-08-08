@@ -128,7 +128,10 @@ namespace K_Line_Test
                 IsMessageReady = MyProcessBlockMessage.ProcessNextByte(data);
                 if(IsMessageReady)
                 {
-                    MyBlockMessageList.Add(MyProcessBlockMessage.GetBlockMessage());
+                    BlockMessage new_message = MyProcessBlockMessage.GetBlockMessage();
+                    String new_message_in_string = MyProcessBlockMessage.GetBlockMessageString();
+                    MyBlockMessageList.Add(new_message);
+                    rtbKLineData.AppendText(new_message_in_string + "\n" );
                     IsMessageReady = false;
                 }
             }

@@ -11,7 +11,7 @@ namespace MySerialLibrary
     class MySerial : IDisposable
     {
         // static member/function to shared aross all MySerial
-        static private Dictionary<string, Object> MySerialDictionary = new Dictionary<string, Object>();
+        static protected Dictionary<string, Object> MySerialDictionary = new Dictionary<string, Object>();
 
         // Private member
         private SerialPort _serialPort;
@@ -26,6 +26,15 @@ namespace MySerialLibrary
             BR_115200 =  115200,
             BR_230400 =  230400,
         };
+
+        enum RX_PROCESSOR
+        {
+            ENQUEUE = 0,
+            READLINE,
+            K_LINE
+        }
+
+        private RX_PROCESSOR Rx_Processor_Selection = RX_PROCESSOR.ENQUEUE;              // ENQUEUE
 
         public const int Serial_BaudRate = (int)BAUD_RATE_LIST.BR_K_Line;  // BAUD_RATE_LIST.BR_115200;
         public const Parity Serial_Parity = Parity.None;
@@ -82,7 +91,18 @@ namespace MySerialLibrary
             _serialPort.Encoding = Encoding.UTF8;
             _serialPort.ReadTimeout = 1000;
             _serialPort.WriteTimeout = 1000;
-            _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            switch (Rx_Processor_Selection)
+            {
+                case RX_PROCESSOR.ENQUEUE:
+                    _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                    break;
+                case RX_PROCESSOR.K_LINE:
+                    break;
+                case RX_PROCESSOR.READLINE:
+                    _serialPort.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler_KLine);
+                    // To-be-added.
+                    break;
+            }
 
             try
             {
@@ -182,6 +202,31 @@ namespace MySerialLibrary
                     {
                         byte byte_data = input_buf[ch_index];
                         myserial.Rx_byte_buffer_QUEUE.Enqueue(byte_data);
+                        ch_index++;
+                    }
+                }
+            }
+        }
+
+        private static void DataReceivedHandler_KLine(object sender, SerialDataReceivedEventArgs e)
+        {
+            // Find out which serial port --> which myserial
+            SerialPort sp = (SerialPort)sender;
+            MySerialDictionary.TryGetValue(sp.PortName, out Object myserial_serial_obj);
+            MySerial myserial = (MySerial)myserial_serial_obj;
+            //Rx_char_buffer_QUEUE
+            int buf_len = sp.BytesToRead;
+            if (buf_len > 0)
+            {
+                // Read in all char
+                byte[] input_buf = new byte[buf_len];
+                sp.Read(input_buf, 0, buf_len);
+                {
+                    int ch_index = 0;
+                    while (ch_index < buf_len)
+                    {
+                        byte byte_data = input_buf[ch_index];
+                        // Call-out K-Line Processor
                         ch_index++;
                     }
                 }

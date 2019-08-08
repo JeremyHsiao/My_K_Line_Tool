@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MySerialLibrary;
+using System.IO.Ports;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 
 namespace K_Line_Test
 {
@@ -17,6 +22,14 @@ namespace K_Line_Test
         WAIT_FOR_ZERO,
         OUT_OF_RANGE
     };
+
+    enum MSG_A1A0_MODE
+    {
+        NO_ADDRESS_INFO = 0,
+        CARB_MODE = 1,
+        WITH_ADDRESS_INFO = 2,
+        FUNCTIONAL_ADDRESSING = 3
+    }
 
     enum MSG_STAGE_FORMAT_01
     {
@@ -115,10 +128,14 @@ namespace K_Line_Test
         private int ExpectedDataListLen;
         private uint msg_field_index;
 
+        // Additional string to store block message in string format
+        private String msd_data_in_string;
+
         // Private function
         private void StartNewProcess()
         {
             BlockMessageInProcess.ClearBlockMessage();
+            msd_data_in_string = "";
             ExpectedDataListLen = 0;
             msg_field_index = 0;
             Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
@@ -175,23 +192,28 @@ namespace K_Line_Test
                     ExpectedDataListLen = (next_byte & 0x3f) - 1;           // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msd_data_in_string += "Fmt:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.TA:
                     BlockMessageInProcess.SetTA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msd_data_in_string += "TA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SA:
                     BlockMessageInProcess.SetSA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msd_data_in_string += "SA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SID:
                     BlockMessageInProcess.SetSID(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msd_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
                     if (ExpectedDataListLen > 0)
                     {
                         msg_field_index++;
+                        msd_data_in_string += "Data:";
                     }
                     else
                     {
@@ -201,9 +223,11 @@ namespace K_Line_Test
                 case MSG_STAGE_FORMAT_02.Data:
                     BlockMessageInProcess.AddToDataList(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msd_data_in_string += next_byte.ToString("X2");
                     if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
                     {
                         msg_field_index++;
+                        msd_data_in_string += " ";
                     }
                     break;
                 case MSG_STAGE_FORMAT_02.CS:
@@ -211,6 +235,7 @@ namespace K_Line_Test
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
                     msg_field_index++;
+                    msd_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
             return bRet;
@@ -325,10 +350,10 @@ namespace K_Line_Test
         {
             bool bRet = false;
 
-            switch(Format_ID)
+            switch (Format_ID)
             {
                 case FORMAT_ID.WAIT_FOR_ZERO:
-                    if(next_byte==0)
+                    if (next_byte == 0)
                     {
                         Format_ID = FORMAT_ID.NEW;
                         msg_field_index = 0;
@@ -337,31 +362,43 @@ namespace K_Line_Test
                 case FORMAT_ID.NEW:
                     if (next_byte != 0)
                     {
-                        byte mode_info = (byte)((next_byte & 0xc0) >> 6);
+                        MSG_A1A0_MODE mode_info = (MSG_A1A0_MODE)((next_byte & 0xc0) >> 6);
                         BlockMessageInProcess.ClearBlockMessage();
                         switch (mode_info)
                         {
-                            case 0x00:
-                                Format_ID = FORMAT_ID.ID1;
-                                ProcessFormat1(next_byte);
+                            case MSG_A1A0_MODE.NO_ADDRESS_INFO:      // No Address Information
+                                if ((next_byte & 0x3f) == 0)
+                                {
+                                    msd_data_in_string = "Format 3 - ";
+                                    Format_ID = FORMAT_ID.ID3;
+                                    ProcessFormat3(next_byte);
+                                }
+                                else
+                                {
+                                    msd_data_in_string = "Format 1 - ";
+                                    Format_ID = FORMAT_ID.ID1;
+                                    ProcessFormat1(next_byte);
+                                }
                                 break;
-                            case 0x01:
+                            case MSG_A1A0_MODE.CARB_MODE:
                                 // CARB mode - to be checked & implemented
                                 Format_ID = FORMAT_ID.OUT_OF_RANGE;
                                 break;
-                            case 0x02:
+                            case MSG_A1A0_MODE.WITH_ADDRESS_INFO:
                                 if ((next_byte & 0x3f) == 0)
                                 {
+                                    msd_data_in_string = "Format 4 - ";
                                     Format_ID = FORMAT_ID.ID4;
                                     ProcessFormat4(next_byte);
                                 }
                                 else
                                 {
+                                    msd_data_in_string = "Format 2 - ";
                                     Format_ID = FORMAT_ID.ID2;
                                     ProcessFormat2(next_byte);
                                 }
                                 break;
-                            case 0x03:
+                            case MSG_A1A0_MODE.FUNCTIONAL_ADDRESSING:
                                 // Functional Addressing mode are not supported here
                                 Format_ID = FORMAT_ID.OUT_OF_RANGE;
                                 break;
@@ -387,5 +424,7 @@ namespace K_Line_Test
         }
 
         public BlockMessage GetBlockMessage() { return BlockMessageInProcess; }
+
+        public String GetBlockMessageString() { return msd_data_in_string; }
     }
 }
