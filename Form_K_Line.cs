@@ -128,6 +128,31 @@ namespace K_Line_Test
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(message_in_string + "\n" );
+
+                if(message.GetTA()==0x10)       // ABS in fmt 2 out fmt 4
+                {
+                    BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
+                    List<byte> output_data = new List<byte>();
+
+                    // Force to use format 4
+                    List<byte> return_data = new List<byte>();
+                    return_data.Add(0xEF);
+                    return_data.Add(0x8F);
+                    out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID()|0x40), return_data, true); // with extra length byt
+                    MySerialPort.SendToSerial(output_data.ToArray());
+                }
+                else if (message.GetTA() == 0x28)       // OBD in fmt 2 out fmt 2
+                {
+                    BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
+                    List<byte> output_data = new List<byte>();
+
+                    // Force to use format 4
+                    List<byte> return_data = new List<byte>();
+                    return_data.Add(0xEF);
+                    return_data.Add(0x8F);
+                    out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID() | 0x40), return_data, false); // no extra length byte
+                    MySerialPort.SendToSerial(output_data.ToArray());
+                }
             }
         }
     }

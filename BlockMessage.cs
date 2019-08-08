@@ -120,6 +120,84 @@ namespace BlockMessageLibrary
         public byte UpdateCheckSum(byte next_byte) { CheckSum += next_byte; return CheckSum; }
     }
 
+    class BlockMessageForSerialOutput
+    {
+        // Internal data
+        private BlockMessage BlockMessageInPreparation = new BlockMessage();
+        private List<byte> SerialOutputDataList = new List<byte>();
+
+        // Please update according to ECU parameter
+        private uint ECU_Dbmax = 255;
+
+        // Common Part after format header
+        private void GenerateSIDDataChecksumString(ref List<byte> current_out_data, byte SID, List<byte> DataList)
+        {
+            current_out_data.Add(SID);
+            BlockMessageInPreparation.UpdateCheckSum(SID);
+            current_out_data.AddRange(DataList);
+            foreach (byte element in DataList)
+            {
+               BlockMessageInPreparation.UpdateCheckSum(element);
+            }
+            current_out_data.Add(BlockMessageInPreparation.GetCheckSum());
+        }
+
+        public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
+        {
+            // This for format 1 or 3 -- to be implemented later
+            BlockMessageInPreparation.ClearBlockMessage();
+            SerialOutputDataList.Clear();
+            out_data = SerialOutputDataList;
+            return false;
+        }
+
+        public bool GenerateSerialOutput(out List<byte> out_data, byte TA, byte SA, byte SID, List <byte> DataList, bool ExtraLenByte = false)
+        {
+            bool bRet = false;
+
+            BlockMessageInPreparation.ClearBlockMessage();
+            SerialOutputDataList.Clear();
+
+            // First calculate data length
+            byte len = (byte)(DataList.Count()+1);      // SID is always there
+
+            if ((ExtraLenByte==true)&&(len < ECU_Dbmax))
+            {
+                // Format 4
+                byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
+                SerialOutputDataList.Add(fmt);
+                BlockMessageInPreparation.UpdateCheckSum(fmt);
+                SerialOutputDataList.Add(TA);
+                BlockMessageInPreparation.UpdateCheckSum(TA);
+                SerialOutputDataList.Add(SA);
+                BlockMessageInPreparation.UpdateCheckSum(SA);
+                SerialOutputDataList.Add(len);
+                BlockMessageInPreparation.UpdateCheckSum(len);
+            }
+            else if ((len < ECU_Dbmax) && (len <= 0x3f))     // max 6-bit when there isn't extra length byte
+            {
+                // Format 2
+                byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
+                fmt |= len;
+                SerialOutputDataList.Add(fmt);
+                BlockMessageInPreparation.UpdateCheckSum(fmt);
+                SerialOutputDataList.Add(TA);
+                BlockMessageInPreparation.UpdateCheckSum(TA);
+                SerialOutputDataList.Add(SA);
+                BlockMessageInPreparation.UpdateCheckSum(SA);
+            }
+            else
+            {
+                // Error in data length and need to handle it
+            }
+
+            // Common Part
+            GenerateSIDDataChecksumString(ref SerialOutputDataList, SID, DataList);
+            out_data = SerialOutputDataList;
+            return bRet;
+        }
+    }
+
     class ProcessBlockMessage
     {
         // Internal data
