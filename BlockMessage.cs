@@ -188,9 +188,9 @@ namespace BlockMessageLibrary
                 BlockMessageInPreparation.UpdateCheckSum(len);
                 out_msg_data_in_string = "Out-format 4 - ";
                 out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "TA:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "SA:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "len:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
+                out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
+                out_msg_data_in_string += "len:" + len.ToString("X2") + " ";
             }
             else if ((len < ECU_Dbmax) && (len <= 0x3f))     // max 6-bit when there isn't extra length byte
             {
@@ -205,8 +205,8 @@ namespace BlockMessageLibrary
                 BlockMessageInPreparation.UpdateCheckSum(SA);
                 out_msg_data_in_string = "Out-format 2 - ";
                 out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "TA:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "SA:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
+                out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
             }
             else
             {

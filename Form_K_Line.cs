@@ -140,6 +140,8 @@ namespace K_Line_Test
                     return_data.Add(0x8F);
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID()|0x40), return_data, true); // with extra length byt
                     MySerialPort.SendToSerial(output_data.ToArray());
+                    message_in_string = out_str_proc.GetSerialOutputString();
+                    rtbKLineData.AppendText(message_in_string + "\n");
                 }
                 else if (message.GetTA() == 0x28)       // OBD in fmt 2 out fmt 2
                 {
@@ -152,6 +154,8 @@ namespace K_Line_Test
                     return_data.Add(0x8F);
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID() | 0x40), return_data, false); // no extra length byte
                     MySerialPort.SendToSerial(output_data.ToArray());
+                    message_in_string = out_str_proc.GetSerialOutputString();
+                    rtbKLineData.AppendText(message_in_string + "\n");
                 }
             }
         }
