@@ -120,6 +120,8 @@ namespace K_Line_Test
 
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
         {
+            String current_time_str;
+
             // Regularly polling request message
             while (MySerialPort.KLineBlockMessageList.Count()>0)
             {
@@ -127,7 +129,8 @@ namespace K_Line_Test
                 MySerialPort.KLineBlockMessageList.RemoveAt(0);
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
-                rtbKLineData.AppendText(message_in_string + "\n" );
+                current_time_str = DateTime.Now.ToString("[HH:mm:ss.") + String.Format($"{DateTime.Now.Millisecond}]");
+                rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
 
                 if(message.GetTA()==0x10)       // ABS in fmt 2 out fmt 4
                 {
@@ -141,7 +144,8 @@ namespace K_Line_Test
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID()|0x40), return_data, true); // with extra length byt
                     MySerialPort.SendToSerial(output_data.ToArray());
                     message_in_string = out_str_proc.GetSerialOutputString();
-                    rtbKLineData.AppendText(message_in_string + "\n");
+                    current_time_str = DateTime.Now.ToString("[HH:mm:ss.") + String.Format($"{DateTime.Now.Millisecond}]");
+                    rtbKLineData.AppendText( current_time_str + message_in_string + "\n");
                 }
                 else if (message.GetTA() == 0x28)       // OBD in fmt 2 out fmt 2
                 {
@@ -155,7 +159,8 @@ namespace K_Line_Test
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID() | 0x40), return_data, false); // no extra length byte
                     MySerialPort.SendToSerial(output_data.ToArray());
                     message_in_string = out_str_proc.GetSerialOutputString();
-                    rtbKLineData.AppendText(message_in_string + "\n");
+                    current_time_str = DateTime.Now.ToString("[HH:mm:ss.") + String.Format($"{DateTime.Now.Millisecond}]");
+                    rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
                 }
             }
         }
