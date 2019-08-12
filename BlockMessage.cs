@@ -138,12 +138,19 @@ namespace BlockMessageLibrary
         {
             current_out_data.Add(SID);
             BlockMessageInPreparation.UpdateCheckSum(SID);
-            current_out_data.AddRange(DataList);
-            foreach (byte element in DataList)
+            out_msg_data_in_string += "SID:" + SID.ToString("X2") + " Data:";
+            if (DataList.Count() > 0)
             {
-               BlockMessageInPreparation.UpdateCheckSum(element);
+                current_out_data.AddRange(DataList);
+                foreach (byte element in DataList)
+                {
+                    BlockMessageInPreparation.UpdateCheckSum(element);
+                    out_msg_data_in_string += element.ToString("X2") + " ";
+                }
             }
-            current_out_data.Add(BlockMessageInPreparation.GetCheckSum());
+            byte CheckSum = BlockMessageInPreparation.GetCheckSum();
+            current_out_data.Add(CheckSum);
+            out_msg_data_in_string += "CS:" + CheckSum.ToString("X2");
         }
 
         public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
@@ -179,6 +186,11 @@ namespace BlockMessageLibrary
                 BlockMessageInPreparation.UpdateCheckSum(SA);
                 SerialOutputDataList.Add(len);
                 BlockMessageInPreparation.UpdateCheckSum(len);
+                out_msg_data_in_string = "Out-format 4 - ";
+                out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "TA:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "SA:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "len:" + fmt.ToString("X2") + " ";
             }
             else if ((len < ECU_Dbmax) && (len <= 0x3f))     // max 6-bit when there isn't extra length byte
             {
@@ -191,6 +203,10 @@ namespace BlockMessageLibrary
                 BlockMessageInPreparation.UpdateCheckSum(TA);
                 SerialOutputDataList.Add(SA);
                 BlockMessageInPreparation.UpdateCheckSum(SA);
+                out_msg_data_in_string = "Out-format 2 - ";
+                out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "TA:" + fmt.ToString("X2") + " ";
+                out_msg_data_in_string += "SA:" + fmt.ToString("X2") + " ";
             }
             else
             {
@@ -202,6 +218,9 @@ namespace BlockMessageLibrary
             out_data = SerialOutputDataList;
             return bRet;
         }
+
+        public String GetSerialOutputString() { return out_msg_data_in_string; }
+
     }
 
     // This class is for processing input block message from serial input
