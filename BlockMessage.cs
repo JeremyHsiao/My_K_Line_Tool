@@ -120,6 +120,7 @@ namespace BlockMessageLibrary
         public byte UpdateCheckSum(byte next_byte) { CheckSum += next_byte; return CheckSum; }
     }
 
+    // This class is for generating output block message for serial output
     class BlockMessageForSerialOutput
     {
         // Internal data
@@ -128,6 +129,9 @@ namespace BlockMessageLibrary
 
         // Please update according to ECU parameter
         private uint ECU_Dbmax = 255;
+
+        // Additional string to store block message in string format
+        private String out_msg_data_in_string;
 
         // Common Part after format header
         private void GenerateSIDDataChecksumString(ref List<byte> current_out_data, byte SID, List<byte> DataList)
@@ -145,14 +149,16 @@ namespace BlockMessageLibrary
         public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
         {
             // This for format 1 or 3 -- to be implemented later
+            bool bRet = false;
             BlockMessageInPreparation.ClearBlockMessage();
             SerialOutputDataList.Clear();
             out_data = SerialOutputDataList;
-            return false;
+            return bRet;
         }
 
         public bool GenerateSerialOutput(out List<byte> out_data, byte TA, byte SA, byte SID, List <byte> DataList, bool ExtraLenByte = false)
         {
+            // This for format 2 or 4 -- to be implemented later
             bool bRet = false;
 
             BlockMessageInPreparation.ClearBlockMessage();
@@ -198,6 +204,7 @@ namespace BlockMessageLibrary
         }
     }
 
+    // This class is for processing input block message from serial input
     class ProcessBlockMessage
     {
         // Internal data
@@ -207,13 +214,13 @@ namespace BlockMessageLibrary
         private uint msg_field_index;
 
         // Additional string to store block message in string format
-        private String msd_data_in_string;
+        private String msg_data_in_string;
 
         // Private function
         private void StartNewProcess()
         {
             BlockMessageInProcess.ClearBlockMessage();
-            msd_data_in_string = "";
+            msg_data_in_string = "";
             ExpectedDataListLen = 0;
             msg_field_index = 0;
             Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
@@ -270,28 +277,28 @@ namespace BlockMessageLibrary
                     ExpectedDataListLen = (next_byte & 0x3f) - 1;           // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msd_data_in_string += "Fmt:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += "Fmt:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.TA:
                     BlockMessageInProcess.SetTA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msd_data_in_string += "TA:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += "TA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SA:
                     BlockMessageInProcess.SetSA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msd_data_in_string += "SA:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += "SA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SID:
                     BlockMessageInProcess.SetSID(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
-                    msd_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
                     if (ExpectedDataListLen > 0)
                     {
                         msg_field_index++;
-                        msd_data_in_string += "Data:";
+                        msg_data_in_string += "Data:";
                     }
                     else
                     {
@@ -301,11 +308,11 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_02.Data:
                     BlockMessageInProcess.AddToDataList(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
-                    msd_data_in_string += next_byte.ToString("X2");
+                    msg_data_in_string += next_byte.ToString("X2");
                     if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
                     {
                         msg_field_index++;
-                        msd_data_in_string += " ";
+                        msg_data_in_string += " ";
                     }
                     break;
                 case MSG_STAGE_FORMAT_02.CS:
@@ -313,7 +320,7 @@ namespace BlockMessageLibrary
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
                     msg_field_index++;
-                    msd_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
+                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
             return bRet;
@@ -447,13 +454,13 @@ namespace BlockMessageLibrary
                             case MSG_A1A0_MODE.NO_ADDRESS_INFO:      // No Address Information
                                 if ((next_byte & 0x3f) == 0)
                                 {
-                                    msd_data_in_string = "Format 3 - ";
+                                    msg_data_in_string = "Format 3 - ";
                                     Format_ID = FORMAT_ID.ID3;
                                     ProcessFormat3(next_byte);
                                 }
                                 else
                                 {
-                                    msd_data_in_string = "Format 1 - ";
+                                    msg_data_in_string = "Format 1 - ";
                                     Format_ID = FORMAT_ID.ID1;
                                     ProcessFormat1(next_byte);
                                 }
@@ -465,13 +472,13 @@ namespace BlockMessageLibrary
                             case MSG_A1A0_MODE.WITH_ADDRESS_INFO:
                                 if ((next_byte & 0x3f) == 0)
                                 {
-                                    msd_data_in_string = "Format 4 - ";
+                                    msg_data_in_string = "Format 4 - ";
                                     Format_ID = FORMAT_ID.ID4;
                                     ProcessFormat4(next_byte);
                                 }
                                 else
                                 {
-                                    msd_data_in_string = "Format 2 - ";
+                                    msg_data_in_string = "Format 2 - ";
                                     Format_ID = FORMAT_ID.ID2;
                                     ProcessFormat2(next_byte);
                                 }
@@ -503,6 +510,6 @@ namespace BlockMessageLibrary
 
         public BlockMessage GetBlockMessage() { return BlockMessageInProcess; }
 
-        public String GetBlockMessageString() { return msd_data_in_string; }
+        public String GetBlockMessageString() { return msg_data_in_string; }
     }
 }
