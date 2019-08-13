@@ -36,7 +36,8 @@ namespace BlockMessageLibrary
         FMT = 0,
         SID = 1,
         Data = 2,
-        CS = 3
+        CS = 3,
+        END
     };
 
     enum MSG_STAGE_FORMAT_02
@@ -280,7 +281,7 @@ namespace BlockMessageLibrary
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
-                    msg_field_index++;
+                    msg_field_index = 0;
                     break;
             }
             return bRet;
@@ -338,7 +339,7 @@ namespace BlockMessageLibrary
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
-                    msg_field_index++;
+                    msg_field_index = 0;
                     msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
@@ -385,7 +386,7 @@ namespace BlockMessageLibrary
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
-                    msg_field_index++;
+                    msg_field_index = 0;
                     break;
             }
             return bRet;
@@ -441,7 +442,7 @@ namespace BlockMessageLibrary
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
-                    msg_field_index++;
+                    msg_field_index=0;
                     break;
             }
             return bRet;
@@ -522,6 +523,11 @@ namespace BlockMessageLibrary
                     bRet = ProcessFormat4(next_byte);
                     break;
                 default:
+                    if (next_byte == 0)
+                    {
+                        Format_ID = FORMAT_ID.NEW;
+                        msg_field_index = 0;
+                    }
                     break;
             }
             return bRet;

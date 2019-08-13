@@ -142,6 +142,8 @@ namespace K_Line_Test
                     return_data.Add(0xEF);
                     return_data.Add(0x8F);
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID()|0x40), return_data, true); // with extra length byt
+                    MySerialPort.Add_ECU_Filtering_Data(output_data);
+                    MySerialPort.Enable_ECU_Filtering(true);
                     MySerialPort.SendToSerial(output_data.ToArray());
                     message_in_string = out_str_proc.GetSerialOutputString();
                     current_time_str = DateTime.Now.ToString("[HH:mm:ss.") + String.Format($"{DateTime.Now.Millisecond}]");
@@ -157,6 +159,8 @@ namespace K_Line_Test
                     return_data.Add(0xEF);
                     return_data.Add(0x8F);
                     out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), message.GetTA(), (byte)(message.GetSID() | 0x40), return_data, false); // no extra length byte
+                    MySerialPort.Add_ECU_Filtering_Data(output_data);
+                    MySerialPort.Enable_ECU_Filtering(true);
                     MySerialPort.SendToSerial(output_data.ToArray());
                     message_in_string = out_str_proc.GetSerialOutputString();
                     current_time_str = DateTime.Now.ToString("[HH:mm:ss.") + String.Format($"{DateTime.Now.Millisecond}]");
