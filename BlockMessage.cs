@@ -128,8 +128,9 @@ namespace BlockMessageLibrary
         private BlockMessage BlockMessageInPreparation = new BlockMessage();
         private List<byte> SerialOutputDataList = new List<byte>();
 
+        private const uint Max_Len_6Bit = 0x3f;
         // Please update according to ECU parameter
-        private uint ECU_Dbmax = 255;
+        private uint ECU_Dbmax = 40;
 
         // Additional string to store block message in string format
         private String out_msg_data_in_string;
@@ -177,7 +178,7 @@ namespace BlockMessageLibrary
             // First calculate data length
             byte len = (byte)(DataList.Count()+1);      // SID is always there
 
-            if ((ExtraLenByte==true)&&(len < ECU_Dbmax))
+            if (((ExtraLenByte==true)||(len>Max_Len_6Bit))&&(len < ECU_Dbmax))
             {
                 // Format 4
                 SerialOutputDataList.Add(0x00);
@@ -200,7 +201,7 @@ namespace BlockMessageLibrary
                 //out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
                 //out_msg_data_in_string += "len:" + len.ToString("X2") + " ";
             }
-            else if ((len < ECU_Dbmax) && (len <= 0x3f))     // max 6-bit when there isn't extra length byte
+            else if ((len < ECU_Dbmax) && (len <= Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
             {
                 SerialOutputDataList.Add(0x00);
                 // Format 2
