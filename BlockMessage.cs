@@ -139,7 +139,8 @@ namespace BlockMessageLibrary
         {
             current_out_data.Add(SID);
             BlockMessageInPreparation.UpdateCheckSum(SID);
-            out_msg_data_in_string += "SID:" + SID.ToString("X2") + " Data:";
+            out_msg_data_in_string += SID.ToString("X2") + " ";
+ //           out_msg_data_in_string += "SID:" + SID.ToString("X2") + " Data:";
             if (DataList.Count() > 0)
             {
                 current_out_data.AddRange(DataList);
@@ -151,7 +152,8 @@ namespace BlockMessageLibrary
             }
             byte CheckSum = BlockMessageInPreparation.GetCheckSum();
             current_out_data.Add(CheckSum);
-            out_msg_data_in_string += "CS:" + CheckSum.ToString("X2");
+            out_msg_data_in_string += CheckSum.ToString("X2");
+            //out_msg_data_in_string += "CS:" + CheckSum.ToString("X2");
         }
 
         public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
@@ -178,6 +180,7 @@ namespace BlockMessageLibrary
             if ((ExtraLenByte==true)&&(len < ECU_Dbmax))
             {
                 // Format 4
+                SerialOutputDataList.Add(0x00);
                 byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
                 SerialOutputDataList.Add(fmt);
                 BlockMessageInPreparation.UpdateCheckSum(fmt);
@@ -188,13 +191,18 @@ namespace BlockMessageLibrary
                 SerialOutputDataList.Add(len);
                 BlockMessageInPreparation.UpdateCheckSum(len);
                 out_msg_data_in_string = "Out-format 4 - ";
-                out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
-                out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
-                out_msg_data_in_string += "len:" + len.ToString("X2") + " ";
+                out_msg_data_in_string += fmt.ToString("X2") + " ";
+                out_msg_data_in_string += TA.ToString("X2") + " ";
+                out_msg_data_in_string += SA.ToString("X2") + " ";
+                out_msg_data_in_string += len.ToString("X2") + " ";
+                //out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
+                //out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
+                //out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
+                //out_msg_data_in_string += "len:" + len.ToString("X2") + " ";
             }
             else if ((len < ECU_Dbmax) && (len <= 0x3f))     // max 6-bit when there isn't extra length byte
             {
+                SerialOutputDataList.Add(0x00);
                 // Format 2
                 byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
                 fmt |= len;
@@ -205,9 +213,12 @@ namespace BlockMessageLibrary
                 SerialOutputDataList.Add(SA);
                 BlockMessageInPreparation.UpdateCheckSum(SA);
                 out_msg_data_in_string = "Out-format 2 - ";
-                out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
-                out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
+                out_msg_data_in_string += fmt.ToString("X2") + " ";
+                out_msg_data_in_string += TA.ToString("X2") + " ";
+                out_msg_data_in_string += SA.ToString("X2") + " ";
+                //out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
+                //out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
+                //out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
             }
             else
             {
@@ -297,28 +308,32 @@ namespace BlockMessageLibrary
                     ExpectedDataListLen = (next_byte & 0x3f) - 1;           // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msg_data_in_string += "Fmt:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
+//                    msg_data_in_string += "Fmt:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.TA:
                     BlockMessageInProcess.SetTA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msg_data_in_string += "TA:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
+//                   msg_data_in_string += "TA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SA:
                     BlockMessageInProcess.SetSA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
-                    msg_data_in_string += "SA:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
+//                    msg_data_in_string += "SA:" + next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_02.SID:
                     BlockMessageInProcess.SetSID(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
-                    msg_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
+//                    msg_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
                     if (ExpectedDataListLen > 0)
                     {
                         msg_field_index++;
-                        msg_data_in_string += "Data:";
+//                        msg_data_in_string += "Data:";
                     }
                     else
                     {
@@ -340,7 +355,8 @@ namespace BlockMessageLibrary
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
                     msg_field_index = 0;
-                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
+                    msg_data_in_string += next_byte.ToString("X2") + " " + ((bRet) ? " ok" : " ng");
+//                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
             return bRet;
