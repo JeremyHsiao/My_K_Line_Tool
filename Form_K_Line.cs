@@ -137,6 +137,7 @@ namespace K_Line_Test
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
 
+                /*              
                 if(message.GetTA()== ADDRESS_ABS)       // ABS in fmt 2 out fmt 4
                 {
                     BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
@@ -173,6 +174,7 @@ namespace K_Line_Test
                     message_in_string = out_str_proc.GetSerialOutputString();
                     rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
                 }
+*/
             }
         }
     }
