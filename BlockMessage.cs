@@ -8,6 +8,7 @@ using System.IO.Ports;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using System.Timers;
 
 namespace BlockMessageLibrary
 {
@@ -292,7 +293,7 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_01.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
-                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                    Format_ID = FORMAT_ID.NEW;
                     msg_field_index = 0;
                     break;
             }
@@ -330,7 +331,7 @@ namespace BlockMessageLibrary
                     BlockMessageInProcess.SetSID(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_data_in_string += next_byte.ToString("X2") + " ";
-//                    msg_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
+                    // msg_data_in_string += "SID:" + next_byte.ToString("X2") + " ";
                     if (ExpectedDataListLen > 0)
                     {
                         msg_field_index++;
@@ -344,7 +345,7 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_02.Data:
                     BlockMessageInProcess.AddToDataList(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
-                    msg_data_in_string += next_byte.ToString("X2");
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
                     {
                         msg_field_index++;
@@ -354,9 +355,9 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_02.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
-                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                    Format_ID = FORMAT_ID.NEW;
                     msg_field_index = 0;
-                    msg_data_in_string += next_byte.ToString("X2") + " " + ((bRet) ? " ok" : " ng");
+                    msg_data_in_string += next_byte.ToString("X2") + ((bRet) ? " - ok" : " - ng");
 //                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
@@ -402,7 +403,7 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_03.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
-                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                    Format_ID = FORMAT_ID.NEW;
                     msg_field_index = 0;
                     break;
             }
@@ -458,11 +459,44 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_04.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
-                    Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
-                    msg_field_index=0;
+                    Format_ID = FORMAT_ID.NEW;
+                    msg_field_index = 0;
                     break;
             }
             return bRet;
+        }
+
+        private const int P3_Time = 5000; // 5000ms
+        private static Timer aTimer = new Timer(P3_Time); 
+        private static bool P3_Timeout_Flag = false;
+
+        private static void SetP3Timer()
+        {
+            aTimer = new System.Timers.Timer(P3_Time);
+            aTimer.Elapsed += OnP3TimedEvent;
+            aTimer.AutoReset = false;
+            P3_Timeout_Flag = false;
+            aTimer.Enabled = true;
+        }
+
+        private static void OnP3TimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+        {
+            P3_Timeout_Flag = true;
+            aTimer.Enabled = false;
+        }
+
+        private void ClearP3TimeoutFlag()
+        {
+            P3_Timeout_Flag = false;
+            aTimer.Enabled = false;
+        }
+
+        private bool CheckAndClearP3Timeout()
+        {
+            aTimer.Enabled = false;
+            bool bRet = P3_Timeout_Flag;
+            P3_Timeout_Flag = false;
+            return (bRet);
         }
 
         // Public function
@@ -482,7 +516,14 @@ namespace BlockMessageLibrary
                     }
                     break;
                 case FORMAT_ID.NEW:
-                    if (next_byte != 0)
+                    if (CheckAndClearP3Timeout() == true)
+                    {
+                        if (next_byte != 0)
+                        {
+                            Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
+                        }
+                    }
+                    else
                     {
                         MSG_A1A0_MODE mode_info = (MSG_A1A0_MODE)((next_byte & 0xc0) >> 6);
                         BlockMessageInProcess.ClearBlockMessage();
@@ -546,6 +587,10 @@ namespace BlockMessageLibrary
                         msg_field_index = 0;
                     }
                     break;
+            }
+            if(bRet==true)
+            {
+                SetP3Timer();
             }
             return bRet;
         }

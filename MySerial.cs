@@ -263,7 +263,7 @@ namespace MySerialLibrary
                         myserial.KLineBlockMessageList.Add(new_message);
                         myserial.KLineBlockMessageInStringList.Add(new_message_in_string);
                         IsMessageReady = false;
-                        break;
+                        //break;
                     }
                 }
             }
