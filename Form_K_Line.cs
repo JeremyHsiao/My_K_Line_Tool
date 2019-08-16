@@ -133,6 +133,9 @@ namespace K_Line_Test
                 current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
                 BlockMessage message = MySerialPort.KLineBlockMessageList[0];
                 MySerialPort.KLineBlockMessageList.RemoveAt(0);
+                String raw_data_in_string = MySerialPort.KLineRawDataInStringList[0];
+                MySerialPort.KLineRawDataInStringList.RemoveAt(0);
+                rtbKLineData.AppendText(current_time_str + raw_data_in_string + "\n");
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
