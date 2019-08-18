@@ -384,12 +384,13 @@ namespace BlockMessageLibrary
             {
                 case MSG_STAGE_FORMAT_03.FMT:
                     BlockMessageInProcess.SetFmt(next_byte);
-                    ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
+//                   ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
                     break;
                 case MSG_STAGE_FORMAT_03.Len:
                     BlockMessageInProcess.SetLen(next_byte);
+                    ExpectedDataListLen = next_byte - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
                     break;
@@ -430,7 +431,7 @@ namespace BlockMessageLibrary
             {
                 case MSG_STAGE_FORMAT_04.FMT:
                     BlockMessageInProcess.SetFmt(next_byte);
-                    ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
+//                    ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
                     msg_data_in_string += next_byte.ToString("X2") + " ";
@@ -449,6 +450,7 @@ namespace BlockMessageLibrary
                     break;
                 case MSG_STAGE_FORMAT_04.Len:
                     BlockMessageInProcess.SetLen(next_byte);
+                    ExpectedDataListLen = next_byte - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
                     msg_data_in_string += next_byte.ToString("X2") + " ";
@@ -509,7 +511,7 @@ namespace BlockMessageLibrary
         {
             aTimer.Enabled = false;
             P3_Timeout_Flag = false;
-            aTimer.Dispose();
+            //aTimer.Dispose();
         }
 
         private bool CheckAndClearP3Timeout()
