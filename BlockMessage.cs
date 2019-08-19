@@ -77,6 +77,7 @@ namespace BlockMessageLibrary
     class BlockMessage
     {
         // Packet data
+        private bool With_Leading_00;
         private byte Fmt;
         private byte TA;
         private byte SA;
@@ -92,9 +93,13 @@ namespace BlockMessageLibrary
 
         public void ClearBlockMessage()
         {
+            With_Leading_00 = false;
             Fmt = TA = SA = Len = SID = CheckSum = 0;            // set to 0 as null message
             msg_data.Clear();
         }
+
+        public bool GetLeadingZero() { return With_Leading_00; }
+        public void SetLeadingZero(bool LeadingZero) { With_Leading_00 = LeadingZero; }
 
         public byte GetFmt() { return Fmt; }
         public void SetFmt(byte NewFmt) { Fmt = NewFmt; }
@@ -245,6 +250,7 @@ namespace BlockMessageLibrary
         private FORMAT_ID Format_ID;
         private int ExpectedDataListLen;
         private uint msg_field_index;
+        private bool LeadingWithZero = false;
 
         // Additional string to store block message in string format
         private String msg_data_in_string;
@@ -354,11 +360,18 @@ namespace BlockMessageLibrary
                     break;
                 case MSG_STAGE_FORMAT_02.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
-                    bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
                     Format_ID = FORMAT_ID.NEW;
                     msg_field_index = 0;
+                    if (current_checksum == next_byte)
+                    {
+                        bRet = true;
+                    }
+                    else
+                    {
+                        bRet = false;
+                    }
                     msg_data_in_string += next_byte.ToString("X2") + ((bRet) ? " - ok" : " - ng");
-//                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
+                    //                    msg_data_in_string += "CS:" + next_byte.ToString("X2") + ((bRet) ? " ok" : " ng");
                     break;
             }
             return bRet;
@@ -420,21 +433,25 @@ namespace BlockMessageLibrary
                     ExpectedDataListLen = (next_byte & 0x3f) - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.TA:
                     BlockMessageInProcess.SetTA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.SA:
                     BlockMessageInProcess.SetSA(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.Len:
                     BlockMessageInProcess.SetLen(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.SID:
                     BlockMessageInProcess.SetSID(next_byte);
@@ -447,10 +464,12 @@ namespace BlockMessageLibrary
                     {
                         msg_field_index += 2;
                     }
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.Data:
                     BlockMessageInProcess.AddToDataList(next_byte);
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     if (BlockMessageInProcess.GetDataListLen() >= ExpectedDataListLen)
                     {
                         msg_field_index++;
@@ -459,6 +478,7 @@ namespace BlockMessageLibrary
                 case MSG_STAGE_FORMAT_04.CS:
                     byte current_checksum = BlockMessageInProcess.GetCheckSum();
                     bRet = (current_checksum == next_byte) ? true : false;      // data available if checksum is ok
+                    msg_data_in_string += next_byte.ToString("X2") + " ";
                     Format_ID = FORMAT_ID.NEW;
                     msg_field_index = 0;
                     break;
@@ -487,15 +507,15 @@ namespace BlockMessageLibrary
 
         private void ClearP3TimeoutFlag()
         {
-            P3_Timeout_Flag = false;
             aTimer.Enabled = false;
+            P3_Timeout_Flag = false;
+            aTimer.Dispose();
         }
 
         private bool CheckAndClearP3Timeout()
         {
-            aTimer.Enabled = false;
             bool bRet = P3_Timeout_Flag;
-            P3_Timeout_Flag = false;
+            ClearP3TimeoutFlag();
             return (bRet);
         }
 
@@ -513,32 +533,46 @@ namespace BlockMessageLibrary
                     {
                         Format_ID = FORMAT_ID.NEW;
                         msg_field_index = 0;
+                        LeadingWithZero = true;
                     }
                     break;
                 case FORMAT_ID.NEW:
                     if (CheckAndClearP3Timeout() == true)
                     {
+                        // Already timeout, must be a zero for a valid data
                         if (next_byte != 0)
                         {
                             Format_ID = FORMAT_ID.WAIT_FOR_ZERO;
                         }
+                        else
+                        {
+                            msg_field_index = 0;
+                            LeadingWithZero = true;
+                        }
                     }
-                    else
+                    else if (next_byte == 0)
                     {
-                        MSG_A1A0_MODE mode_info = (MSG_A1A0_MODE)((next_byte & 0xc0) >> 6);
+                        msg_field_index = 0;
+                        LeadingWithZero = true;
+                    }
+                    else 
+                    {
                         BlockMessageInProcess.ClearBlockMessage();
+                        msg_data_in_string = (LeadingWithZero) ? "Init - " : "";
+                        LeadingWithZero = false;
+                        MSG_A1A0_MODE mode_info = (MSG_A1A0_MODE)((next_byte & 0xc0) >> 6);
                         switch (mode_info)
                         {
                             case MSG_A1A0_MODE.NO_ADDRESS_INFO:      // No Address Information
                                 if ((next_byte & 0x3f) == 0)
                                 {
-                                    msg_data_in_string = "Format 3 - ";
+                                    msg_data_in_string += "Format 3 - ";
                                     Format_ID = FORMAT_ID.ID3;
                                     ProcessFormat3(next_byte);
                                 }
                                 else
                                 {
-                                    msg_data_in_string = "Format 1 - ";
+                                    msg_data_in_string += "Format 1 - ";
                                     Format_ID = FORMAT_ID.ID1;
                                     ProcessFormat1(next_byte);
                                 }
@@ -550,13 +584,13 @@ namespace BlockMessageLibrary
                             case MSG_A1A0_MODE.WITH_ADDRESS_INFO:
                                 if ((next_byte & 0x3f) == 0)
                                 {
-                                    msg_data_in_string = "Format 4 - ";
+                                    msg_data_in_string += "Format 4 - ";
                                     Format_ID = FORMAT_ID.ID4;
                                     ProcessFormat4(next_byte);
                                 }
                                 else
                                 {
-                                    msg_data_in_string = "Format 2 - ";
+                                    msg_data_in_string += "Format 2 - ";
                                     Format_ID = FORMAT_ID.ID2;
                                     ProcessFormat2(next_byte);
                                 }

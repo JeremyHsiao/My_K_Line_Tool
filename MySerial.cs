@@ -211,6 +211,9 @@ namespace MySerialLibrary
 
         public List<BlockMessage> KLineBlockMessageList = new List<BlockMessage>();
         public List<String> KLineBlockMessageInStringList = new List<String>();
+        public List<String> KLineRawDataInStringList = new List<String>();
+        private String RawDataInString = "";
+
         private ProcessBlockMessage KLineKWP2000Process = new ProcessBlockMessage();
 
         private Queue<byte> Rx_Queue_Log = new Queue<byte>();
@@ -255,6 +258,7 @@ namespace MySerialLibrary
                 else
                 {
                     myserial.Rx_Queue_Log.Enqueue(byte_data);
+                    myserial.RawDataInString += byte_data.ToString("X2") + " ";
                     IsMessageReady = myserial.KLineKWP2000Process.ProcessNextByte(byte_data);
                     if (IsMessageReady)
                     {
@@ -262,6 +266,8 @@ namespace MySerialLibrary
                         String new_message_in_string = myserial.KLineKWP2000Process.GetBlockMessageString();
                         myserial.KLineBlockMessageList.Add(new_message);
                         myserial.KLineBlockMessageInStringList.Add(new_message_in_string);
+                        myserial.KLineRawDataInStringList.Add(myserial.RawDataInString);
+                        myserial.RawDataInString = "";
                         IsMessageReady = false;
                         //break;
                     }
