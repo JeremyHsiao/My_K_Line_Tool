@@ -37,7 +37,7 @@ namespace KWP_2000
 
             if (in_msg.GetTA() == ADDRESS_ABS)      
             {
-                bRet = ProcessMessage_ABS(in_msg);
+                bRet = ProcessMessage_ABS(in_msg, ref out_msg);
             }
             else if (in_msg.GetTA() == ADDRESS_OBD)      
             {
@@ -51,10 +51,10 @@ namespace KWP_2000
         {
             byte this_byte;
             out_msg.ClearBlockMessage();
-            // Format 2
+            // Format 4
             // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | ABS_Reply_StopCommunication_Length);
-            out_msg.SetTA(this_byte);
+            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -63,6 +63,10 @@ namespace KWP_2000
             // TA
             this_byte = in_msg.GetTA();
             out_msg.SetSA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // Len
+            this_byte = (byte)ABS_Reply_StopCommunication_Length;
+            out_msg.SetLen(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SID
             this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
@@ -81,7 +85,7 @@ namespace KWP_2000
             // Format 4
             // FMT
             this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
-            out_msg.SetTA(this_byte);
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -110,7 +114,7 @@ namespace KWP_2000
 
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = 0;
-        private byte[] fixed_response_data_abs = { 0x04, 0x01, 0x15, 0x61, 0x40, 0x85, 0x62, 0x02, 0x30, 0x62, 0xC4, 0x86, 0x62 };
+        private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
@@ -126,7 +130,7 @@ namespace KWP_2000
             // Format 4
             // FMT
             this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
-            out_msg.SetTA(this_byte);
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -153,20 +157,22 @@ namespace KWP_2000
             return out_msg;
         }
 
-        public bool ProcessMessage_ABS(BlockMessage abs_msg)
+        public bool ProcessMessage_ABS(BlockMessage abs_msg, ref BlockMessage ResponseMessage)
         {
             bool bRet = false;
 
             switch((ENUM_SID)abs_msg.GetSID())
             {
                 case ENUM_SID.ReadDiagnosticTroubleCodesByStatus:
+                    PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(abs_msg, ref ResponseMessage);
+                    bRet = true;
                     break;
                 case ENUM_SID.StartCommunication:
-                    ResponseMessage = PrepareResponse_StartCommunication_ABS(abs_msg, ref ResponseMessage);
+                    PrepareResponse_StartCommunication_ABS(abs_msg, ref ResponseMessage);
                     bRet = true;
                     break;
                 case ENUM_SID.StopCommunication:
-                    ResponseMessage = PrepareResponse_StopCommunication_ABS(abs_msg, ref ResponseMessage);
+                    PrepareResponse_StopCommunication_ABS(abs_msg, ref ResponseMessage);
                     bRet = true;
                     break;
                 default:
@@ -184,7 +190,7 @@ namespace KWP_2000
             // Format 2
             // FMT
             this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | OBD_Reply_StopCommunication_Length);
-            out_msg.SetTA(this_byte);
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -210,7 +216,7 @@ namespace KWP_2000
             // Format 2
             // FMT
             this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | OBD_Reply_StartCommunication_Length);
-            out_msg.SetTA(this_byte);
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -251,7 +257,7 @@ namespace KWP_2000
             // Format 2
             // FMT
             this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | (fixed_response_data_obd.Length) );
-            out_msg.SetTA(this_byte);
+            out_msg.SetFmt(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SA
             this_byte = in_msg.GetSA();
@@ -284,15 +290,15 @@ namespace KWP_2000
             switch ((ENUM_SID)obd_msg.GetSID())
             {
                 case ENUM_SID.ReadDiagnosticTroubleCodesByStatus:
-                    ResponseMessage = PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(obd_msg, ref ResponseMessage);
+                    PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(obd_msg, ref ResponseMessage);
                     bRet = true;
                     break;
                 case ENUM_SID.StartCommunication:
-                    ResponseMessage = PrepareResponse_StartCommunication_OBD(obd_msg, ref ResponseMessage);
+                    PrepareResponse_StartCommunication_OBD(obd_msg, ref ResponseMessage);
                     bRet = true;
                     break;
                 case ENUM_SID.StopCommunication:
-                    ResponseMessage = PrepareResponse_StopCommunication_OBD(obd_msg, ref ResponseMessage);
+                    PrepareResponse_StopCommunication_OBD(obd_msg, ref ResponseMessage);
                     bRet = true;
                     break;
                 default:
