@@ -119,28 +119,29 @@ namespace KWP_2000
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = 0;
         private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
+        private byte[] dtc_status_table = { 0, 0xA0, 0xC0, 0xE0 };
         // 0x5043
         // 0x5045
         // 0x5052
         // 0x5053
 
-        private List<byte> GenerateRandonResponseData_ABS()
+        private List<byte> GenerateRandomResponseData_ABS()
         {
             Random rs = new Random();
             List<byte> ret_list = new List<byte>();
             CMD_E_ABS_DTC random_dtc;
             uint dtc;
 
-            Byte DTC_no = (byte)(rs.Next(100));
+            Byte DTC_no = (byte)(rs.Next(20));
             DTC_no = (byte)((DTC_no <= ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
             ret_list.Add(DTC_no);
             for (int no = 0; no < DTC_no; no++)
             {
-                random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count() + 1));
+                random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
                 dtc = (uint)random_dtc.DTC;
                 ret_list.Add((byte)(dtc >> 8));               // HighByte
                 ret_list.Add((byte)(dtc & 0xff));             // LowByte
-                ret_list.Add((byte)(rs.Next(8) << 5));        // Status DTC -- randon values at bit 7/6/5
+                ret_list.Add((byte)dtc_status_table[rs.Next(dtc_status_table.Length)]);        // Status DTC -- randon values 
             }
             return ret_list;
         }
@@ -154,7 +155,7 @@ namespace KWP_2000
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            List<byte> out_list = GenerateFixednResponseData_ABS();
+            List<byte> out_list = GenerateRandomResponseData_ABS();
             out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
                                                 (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, true); // for format_4
             return out_msg;
