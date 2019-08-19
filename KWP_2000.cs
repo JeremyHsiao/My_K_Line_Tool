@@ -115,6 +115,10 @@ namespace KWP_2000
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = 0;
         private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
+        // 0x5043
+        // 0x5045
+        // 0x5052
+        // 0x5053
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
@@ -242,6 +246,10 @@ namespace KWP_2000
         private uint ReadDiagnosticTroubleCodesByStatus_OBD_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_OBD_GroupOfDTC = 0;
         private byte []fixed_response_data_obd = { 0x04, 0x01, 0x15, 0x61, 0x40, 0x85, 0x62, 0x02, 0x30, 0x62, 0xC4, 0x86, 0x62 };
+        // P0115: 0x0115
+        // C0085: 0x4085
+        // P0230: 0x0230
+        // U0486: 0xC486
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
