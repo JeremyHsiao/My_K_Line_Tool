@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using MySerialLibrary;
 using BlockMessageLibrary;
 using System.Threading;
+using KWP_2000;
 
 namespace K_Line_Test
 {
@@ -140,7 +141,23 @@ namespace K_Line_Test
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
 
-                if(message.GetTA()== ADDRESS_ABS)       // ABS in fmt 2 out fmt 4
+                BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
+                BlockMessage out_message = new BlockMessage();
+                KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
+                List<byte> output_data = new List<byte>();
+
+                kwp_2000_process.ProcessMessage(message, ref out_message);
+                out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), false); // with extra length byt
+                MySerialPort.Add_ECU_Filtering_Data(output_data);
+                MySerialPort.Enable_ECU_Filtering(true);
+                Thread.Sleep(min_delay_before_response);
+                current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
+                MySerialPort.SendToSerial(output_data.ToArray());
+                message_in_string = out_str_proc.GetSerialOutputString();
+                rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
+
+                /*
+                if (message.GetTA()== ADDRESS_ABS)       // ABS in fmt 2 out fmt 4
                 {
                     BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                     List<byte> output_data = new List<byte>();
@@ -176,6 +193,7 @@ namespace K_Line_Test
                     message_in_string = out_str_proc.GetSerialOutputString();
                     rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
                 }
+                */
             }
         }
     }
