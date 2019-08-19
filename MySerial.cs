@@ -169,6 +169,8 @@ namespace MySerialLibrary
         public byte GetRxByte() { byte ret_byte = Rx_byte_buffer_QUEUE.Dequeue(); return ret_byte; }
         public bool IsRxEmpty() { return (Rx_byte_buffer_QUEUE.Count <= 0) ? true : false; }
 
+        public bool GetBreakState () { return _serialPort.BreakState; }
+
         private void Start_SerialReadThread()
         {
             LOG_QUEUE.Clear();
