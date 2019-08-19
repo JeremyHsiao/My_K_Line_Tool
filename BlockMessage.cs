@@ -187,7 +187,7 @@ namespace BlockMessageLibrary
             if (((ExtraLenByte==true)||(len>Max_Len_6Bit))&&(len < ECU_Dbmax))
             {
                 // Format 4
-                SerialOutputDataList.Add(0x00);
+                //SerialOutputDataList.Add(0x00);
                 byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
                 SerialOutputDataList.Add(fmt);
                 BlockMessageInPreparation.UpdateCheckSum(fmt);
@@ -209,7 +209,7 @@ namespace BlockMessageLibrary
             }
             else if ((len < ECU_Dbmax) && (len <= Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
             {
-                SerialOutputDataList.Add(0x00);
+                //SerialOutputDataList.Add(0x00);
                 // Format 2
                 byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
                 fmt |= len;
