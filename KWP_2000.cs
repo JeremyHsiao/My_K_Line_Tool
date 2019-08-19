@@ -46,6 +46,31 @@ namespace KWP_2000
             return bRet;
         }
 
+        private uint ABS_Reply_StopCommunication_Length = 0x01;
+        private BlockMessage PrepareResponse_StopCommunication_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
+        {
+            byte this_byte;
+            out_msg.ClearBlockMessage();
+            // Format 2
+            // FMT
+            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | ABS_Reply_StopCommunication_Length);
+            out_msg.SetTA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // SA
+            this_byte = in_msg.GetSA();
+            out_msg.SetTA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // TA
+            this_byte = in_msg.GetTA();
+            out_msg.SetSA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // SID
+            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
+            out_msg.SetSID(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            return out_msg;
+        }
+
         private uint ABS_KeyByte_for_StartCommunication = 0x8FEF;
         private uint ABS_Reply_StartCommunication_Length = 0x03;
 
@@ -141,6 +166,8 @@ namespace KWP_2000
                     bRet = true;
                     break;
                 case ENUM_SID.StopCommunication:
+                    ResponseMessage = PrepareResponse_StopCommunication_ABS(abs_msg, ref ResponseMessage);
+                    bRet = true;
                     break;
                 default:
                     break;
@@ -149,9 +176,33 @@ namespace KWP_2000
             return bRet;
         }
 
+        private uint OBD_Reply_StopCommunication_Length = 0x01;
+        private BlockMessage PrepareResponse_StopCommunication_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
+        {
+            byte this_byte;
+            out_msg.ClearBlockMessage();
+            // Format 2
+            // FMT
+            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | OBD_Reply_StopCommunication_Length);
+            out_msg.SetTA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // SA
+            this_byte = in_msg.GetSA();
+            out_msg.SetTA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // TA
+            this_byte = in_msg.GetTA();
+            out_msg.SetSA(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            // SID
+            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
+            out_msg.SetSID(this_byte);
+            out_msg.UpdateCheckSum(this_byte);
+            return out_msg;
+        }
+
         private uint OBD_KeyByte_for_StartCommunication = 0x8FEF;
         private uint OBD_Reply_StartCommunication_Length = 0x03;
-
         private BlockMessage PrepareResponse_StartCommunication_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
             byte this_byte;
@@ -241,6 +292,8 @@ namespace KWP_2000
                     bRet = true;
                     break;
                 case ENUM_SID.StopCommunication:
+                    ResponseMessage = PrepareResponse_StopCommunication_OBD(obd_msg, ref ResponseMessage);
+                    bRet = true;
                     break;
                 default:
                     break;
