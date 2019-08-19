@@ -147,7 +147,16 @@ namespace K_Line_Test
                 List<byte> output_data = new List<byte>();
 
                 kwp_2000_process.ProcessMessage(message, ref out_message);
-                out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), false); // with extra length byt
+                if ((out_message.GetFmt() & 0x3f) == 0) // 0 means there is extra len byte
+                {   
+                    // format 4
+                    out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), true); // with extra length byte
+                }
+                else
+                {
+                    // format 2
+                    out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), false); // W/O extra length byte
+                }
                 MySerialPort.Add_ECU_Filtering_Data(output_data);
                 MySerialPort.Enable_ECU_Filtering(true);
                 Thread.Sleep(min_delay_before_response);
