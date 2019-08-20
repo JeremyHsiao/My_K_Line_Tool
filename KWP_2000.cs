@@ -131,7 +131,8 @@ namespace KWP_2000
             CMD_E_ABS_DTC random_dtc;
             uint dtc;
 
-            Byte DTC_no = (byte)rs.Next(ReadDiagnosticCodesByStatus_MaxNumberOfDTC + 1);
+            Byte DTC_no = (byte)(rs.Next(100));
+            DTC_no = (byte)((DTC_no <= ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
             ret_list.Add(DTC_no);
             for (int no = 0; no < DTC_no; no++)
             {
