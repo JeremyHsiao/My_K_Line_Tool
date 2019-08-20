@@ -77,7 +77,6 @@ namespace BlockMessageLibrary
     class BlockMessage
     {
         // Packet data
-        private bool With_Leading_00;
         private byte Fmt;
         private byte TA;
         private byte SA;
@@ -85,21 +84,59 @@ namespace BlockMessageLibrary
         private byte SID;
         private List<Byte> msg_data;
         private byte CheckSum;
+        private const uint Max_Len_6Bit = 0x3f;
 
         public BlockMessage()
         {
             msg_data = new List<byte>(); ClearBlockMessage();
         }
 
+        public BlockMessage(byte FMT_value, byte TA_value, byte SA_value, byte SID_value, List<byte> DataList, bool ExtraLenByte = false)
+        {
+            // For format 2/4
+            msg_data = new List<byte>(); ClearBlockMessage();
+
+            // returning_data
+            foreach (byte res in DataList)
+            {
+                AddToDataList(res);
+                UpdateCheckSum(res);
+            }
+
+            // FMT
+            byte total_len_value = (byte)(GetDataListLen() + 1);
+            if ((ExtraLenByte == true)||(total_len_value> Max_Len_6Bit))
+            {
+                Fmt = (byte)(FMT_value & ~Max_Len_6Bit);   // clear 6-bit LSB 
+                UpdateCheckSum(Fmt);
+                Len = total_len_value; // plus SID_byte
+                UpdateCheckSum(Len);
+            }
+            else
+            {
+                Fmt = (byte)((FMT_value & ~Max_Len_6Bit) |total_len_value);   // clear 6-bit LSB then OR len_value
+                UpdateCheckSum(Fmt);
+                Len = 0;    // Clear for not-used
+            }
+
+            Fmt = FMT_value;
+            UpdateCheckSum(FMT_value);
+            // TA
+            TA = TA_value;
+            UpdateCheckSum(TA_value);
+            // SA
+            SA = SA_value;
+            UpdateCheckSum(SA_value);
+            // SID
+            SID = SID_value;
+            UpdateCheckSum(SID_value);
+        }
+
         public void ClearBlockMessage()
         {
-            With_Leading_00 = false;
             Fmt = TA = SA = Len = SID = CheckSum = 0;            // set to 0 as null message
             msg_data.Clear();
         }
-
-        public bool GetLeadingZero() { return With_Leading_00; }
-        public void SetLeadingZero(bool LeadingZero) { With_Leading_00 = LeadingZero; }
 
         public byte GetFmt() { return Fmt; }
         public void SetFmt(byte NewFmt) { Fmt = NewFmt; }
@@ -110,8 +147,10 @@ namespace BlockMessageLibrary
         public byte GetSA() { return SA; }
         public void SetSA(byte NewSA) { SA = NewSA; }
 
-        public byte GetLen() { return Len; }
-        public void SetLen(byte NewLen) { Len = NewLen; }
+        public byte GetLenByte() { return Len; }
+        public void SetLenByte(byte NewLen) { Len = NewLen; }
+
+        public uint GetMessageTotalLen() { return (uint)(((Fmt & ~Max_Len_6Bit) != 0) ? (Fmt & ~Max_Len_6Bit) : Len);  }
 
         public byte GetSID() { return SID; }
         public void SetSID(byte NewSID) { SID = NewSID; }
@@ -125,6 +164,7 @@ namespace BlockMessageLibrary
         public int GetDataListLen() { return msg_data.Count; }
 
         public byte UpdateCheckSum(byte next_byte) { CheckSum += next_byte; return CheckSum; }
+
     }
 
     // This class is for generating output block message for serial output
@@ -234,6 +274,72 @@ namespace BlockMessageLibrary
 
             // Common Part
             GenerateSIDDataChecksumString(ref SerialOutputDataList, SID, DataList);
+            out_data = SerialOutputDataList;
+            return bRet;
+        }
+
+        public bool GenerateSerialOutput(out List<byte> out_data, BlockMessage msg_to_process)
+        {
+            bool bRet = false;
+            byte byte_data;
+
+            BlockMessageInPreparation = msg_to_process;
+            SerialOutputDataList.Clear();
+
+            // First calculate data length
+            uint len = BlockMessageInPreparation.GetMessageTotalLen();
+
+            if ((BlockMessageInPreparation.GetFmt() & ~Max_Len_6Bit) == ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6))
+            {
+                // This for format 2 or 4 
+                // Common portion
+                out_msg_data_in_string = "";
+                byte_data = BlockMessageInPreparation.GetFmt();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                SerialOutputDataList.Add(byte_data);
+                byte_data = BlockMessageInPreparation.GetTA();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                SerialOutputDataList.Add(byte_data);
+                byte_data = BlockMessageInPreparation.GetSA();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                SerialOutputDataList.Add(byte_data);
+
+                if ((len > Max_Len_6Bit) && (len < ECU_Dbmax))
+                {
+                    // Format 4
+                    out_msg_data_in_string = "Out-format 4 - " + out_msg_data_in_string;
+                    byte_data = BlockMessageInPreparation.GetLenByte();
+                    out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                    SerialOutputDataList.Add(byte_data);
+                    bRet = true;
+                }
+                else if ((len < ECU_Dbmax) && (len <= Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
+                {
+                    // Format 2
+                    out_msg_data_in_string = "Out-format 2 - " + out_msg_data_in_string;
+                    bRet = true;
+                }
+                else
+                {
+                    out_msg_data_in_string = "Data Error - to be checked.";
+                }
+                // Common Part
+                byte_data = BlockMessageInPreparation.GetSID();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                SerialOutputDataList.Add(byte_data);
+                foreach (byte element in BlockMessageInPreparation.GetDataList())
+                {
+                    out_msg_data_in_string += element.ToString("X2") + " ";
+                    SerialOutputDataList.Add(element);
+                }
+                byte_data = BlockMessageInPreparation.GetCheckSum();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                SerialOutputDataList.Add(byte_data);
+            }
+            else
+            {
+                // Format 1/3 to be implemented in the future
+            }
             out_data = SerialOutputDataList;
             return bRet;
         }
@@ -389,7 +495,7 @@ namespace BlockMessageLibrary
                     msg_field_index++;
                     break;
                 case MSG_STAGE_FORMAT_03.Len:
-                    BlockMessageInProcess.SetLen(next_byte);
+                    BlockMessageInProcess.SetLenByte(next_byte);
                     ExpectedDataListLen = next_byte - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
@@ -449,7 +555,7 @@ namespace BlockMessageLibrary
                     msg_data_in_string += next_byte.ToString("X2") + " ";
                     break;
                 case MSG_STAGE_FORMAT_04.Len:
-                    BlockMessageInProcess.SetLen(next_byte);
+                    BlockMessageInProcess.SetLenByte(next_byte);
                     ExpectedDataListLen = next_byte - 1;       // minus SID byte
                     BlockMessageInProcess.UpdateCheckSum(next_byte);
                     msg_field_index++;
