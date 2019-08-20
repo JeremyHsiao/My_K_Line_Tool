@@ -114,13 +114,11 @@ namespace BlockMessageLibrary
             }
             else
             {
-                Fmt = (byte)((FMT_value & ~Max_Len_6Bit) |total_len_value);   // clear 6-bit LSB then OR len_value
+                Fmt = (byte)((FMT_value & ~Max_Len_6Bit) | (total_len_value& Max_Len_6Bit));   // clear 6-bit LSB then OR len_value
                 UpdateCheckSum(Fmt);
                 Len = 0;    // Clear for not-used
             }
 
-            Fmt = FMT_value;
-            UpdateCheckSum(FMT_value);
             // TA
             TA = TA_value;
             UpdateCheckSum(TA_value);
@@ -150,7 +148,15 @@ namespace BlockMessageLibrary
         public byte GetLenByte() { return Len; }
         public void SetLenByte(byte NewLen) { Len = NewLen; }
 
-        public uint GetMessageTotalLen() { return (uint)(((Fmt & ~Max_Len_6Bit) != 0) ? (Fmt & ~Max_Len_6Bit) : Len);  }
+        public uint GetMessageTotalLen()
+        {
+            uint temp_len = Fmt & Max_Len_6Bit;
+            if (temp_len == 0)
+            {
+                temp_len = Len;
+            }
+            return temp_len;
+        }
 
         public byte GetSID() { return SID; }
         public void SetSID(byte NewSID) { SID = NewSID; }

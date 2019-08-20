@@ -177,7 +177,6 @@ namespace KWP_2000
         }
 
         private uint OBD_KeyByte_for_StartCommunication = 0x8FEF;
-        private uint OBD_Reply_StartCommunication_Length = 0x03;
         private BlockMessage PrepareResponse_StartCommunication_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
             List<byte> out_list = new List<byte>();
