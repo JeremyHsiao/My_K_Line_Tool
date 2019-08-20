@@ -164,45 +164,6 @@ namespace K_Line_Test
                 MySerialPort.SendToSerial(output_data.ToArray());
                 message_in_string = out_str_proc.GetSerialOutputString();
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
-
-                /*
-                if (message.GetTA()== ADDRESS_ABS)       // ABS in fmt 2 out fmt 4
-                {
-                    BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
-                    List<byte> output_data = new List<byte>();
-
-                    // Force to use format 4
-                    List<byte> return_data = new List<byte>();
-                    return_data.Add(0xEF);
-                    return_data.Add(0x8F);
-                    out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), ADDRESS_ABS, (byte)(message.GetSID()|0x40), return_data, true); // with extra length byt
-                    MySerialPort.Add_ECU_Filtering_Data(output_data);
-                    MySerialPort.Enable_ECU_Filtering(true);
-                    Thread.Sleep(min_delay_before_response);
-                    current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
-                    MySerialPort.SendToSerial(output_data.ToArray());
-                    message_in_string = out_str_proc.GetSerialOutputString();
-                    rtbKLineData.AppendText( current_time_str + message_in_string + "\n");
-                }
-                else if (message.GetTA() == ADDRESS_OBD)       // OBD in fmt 2 out fmt 2
-                {
-                    BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
-                    List<byte> output_data = new List<byte>();
-
-                    // Force to use format 4
-                    List<byte> return_data = new List<byte>();
-                    return_data.Add(0xEF);
-                    return_data.Add(0x8F);
-                    out_str_proc.GenerateSerialOutput(out output_data, message.GetSA(), ADDRESS_OBD, (byte)(message.GetSID() | 0x40), return_data, false); // no extra length byte
-                    MySerialPort.Add_ECU_Filtering_Data(output_data);
-                    MySerialPort.Enable_ECU_Filtering(true);
-                    Thread.Sleep(min_delay_before_response);
-                    current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
-                    MySerialPort.SendToSerial(output_data.ToArray());
-                    message_in_string = out_str_proc.GetSerialOutputString();
-                    rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
-                }
-                */
             }
         }
     }
