@@ -233,7 +233,7 @@ namespace BlockMessageLibrary
                 out_msg_data_in_string += byte_data.ToString("X2") + " ";
                 SerialOutputDataList.Add(byte_data);
 
-                if ((len > BlockMessage.Max_Len_6Bit) && (len < ECU_Dbmax))
+                if ((((BlockMessageInPreparation.GetFmt() & BlockMessage.Max_Len_6Bit) == 0x00) ||(len > BlockMessage.Max_Len_6Bit)) && (len < ECU_Dbmax))
                 {
                     // Format 4
                     out_msg_data_in_string = "Out-format 4 - " + out_msg_data_in_string;
