@@ -181,102 +181,26 @@ namespace BlockMessageLibrary
         // Additional string to store block message in string format
         private String out_msg_data_in_string;
 
-        // Common Part after format header
-        private void GenerateSIDDataChecksumString(ref List<byte> current_out_data, byte SID, List<byte> DataList)
-        {
-            current_out_data.Add(SID);
-            BlockMessageInPreparation.UpdateCheckSum(SID);
-            out_msg_data_in_string += SID.ToString("X2") + " ";
- //           out_msg_data_in_string += "SID:" + SID.ToString("X2") + " Data:";
-            if (DataList.Count() > 0)
-            {
-                current_out_data.AddRange(DataList);
-                foreach (byte element in DataList)
-                {
-                    BlockMessageInPreparation.UpdateCheckSum(element);
-                    out_msg_data_in_string += element.ToString("X2") + " ";
-                }
-            }
-            byte CheckSum = BlockMessageInPreparation.GetCheckSum();
-            current_out_data.Add(CheckSum);
-            out_msg_data_in_string += CheckSum.ToString("X2");
-            //out_msg_data_in_string += "CS:" + CheckSum.ToString("X2");
-        }
+        //public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
+        //{
+        //    // This for format 1 or 3 -- to be implemented later
+        //    bool bRet = false;
+        //    BlockMessageInPreparation.ClearBlockMessage();
+        //    SerialOutputDataList.Clear();
+        //    out_data = SerialOutputDataList;
+        //    return bRet;
+        //}
 
-        public bool GenerateSerialOutput(out List<byte> out_data, bool ExtraLenByte = false)
-        {
-            // This for format 1 or 3 -- to be implemented later
-            bool bRet = false;
-            BlockMessageInPreparation.ClearBlockMessage();
-            SerialOutputDataList.Clear();
-            out_data = SerialOutputDataList;
-            return bRet;
-        }
+        //public bool GenerateSerialOutput(out List<byte> out_data, byte TA, byte SA, byte SID, List <byte> DataList, bool ExtraLenByte = false)
+        //{
+        //    // This for format 2 or 4 -- for 1/3 to be implemented later
+        //    bool bRet = false;
 
-        public bool GenerateSerialOutput(out List<byte> out_data, byte TA, byte SA, byte SID, List <byte> DataList, bool ExtraLenByte = false)
-        {
-            // This for format 2 or 4 -- to be implemented later
-            bool bRet = false;
-
-            BlockMessageInPreparation.ClearBlockMessage();
-            SerialOutputDataList.Clear();
-
-            // First calculate data length
-            byte len = (byte)(DataList.Count()+1);      // SID is always there
-
-            if (((ExtraLenByte==true)||(len>Max_Len_6Bit))&&(len < ECU_Dbmax))
-            {
-                // Format 4
-                //SerialOutputDataList.Add(0x00);
-                byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
-                SerialOutputDataList.Add(fmt);
-                BlockMessageInPreparation.UpdateCheckSum(fmt);
-                SerialOutputDataList.Add(TA);
-                BlockMessageInPreparation.UpdateCheckSum(TA);
-                SerialOutputDataList.Add(SA);
-                BlockMessageInPreparation.UpdateCheckSum(SA);
-                SerialOutputDataList.Add(len);
-                BlockMessageInPreparation.UpdateCheckSum(len);
-                out_msg_data_in_string = "Out-format 4 - ";
-                out_msg_data_in_string += fmt.ToString("X2") + " ";
-                out_msg_data_in_string += TA.ToString("X2") + " ";
-                out_msg_data_in_string += SA.ToString("X2") + " ";
-                out_msg_data_in_string += len.ToString("X2") + " ";
-                //out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                //out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
-                //out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
-                //out_msg_data_in_string += "len:" + len.ToString("X2") + " ";
-            }
-            else if ((len < ECU_Dbmax) && (len <= Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
-            {
-                //SerialOutputDataList.Add(0x00);
-                // Format 2
-                byte fmt = ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO)) << 6;
-                fmt |= len;
-                SerialOutputDataList.Add(fmt);
-                BlockMessageInPreparation.UpdateCheckSum(fmt);
-                SerialOutputDataList.Add(TA);
-                BlockMessageInPreparation.UpdateCheckSum(TA);
-                SerialOutputDataList.Add(SA);
-                BlockMessageInPreparation.UpdateCheckSum(SA);
-                out_msg_data_in_string = "Out-format 2 - ";
-                out_msg_data_in_string += fmt.ToString("X2") + " ";
-                out_msg_data_in_string += TA.ToString("X2") + " ";
-                out_msg_data_in_string += SA.ToString("X2") + " ";
-                //out_msg_data_in_string += "Fmt:" + fmt.ToString("X2") + " ";
-                //out_msg_data_in_string += "TA:" + TA.ToString("X2") + " ";
-                //out_msg_data_in_string += "SA:" + SA.ToString("X2") + " ";
-            }
-            else
-            {
-                // Error in data length and need to handle it
-            }
-
-            // Common Part
-            GenerateSIDDataChecksumString(ref SerialOutputDataList, SID, DataList);
-            out_data = SerialOutputDataList;
-            return bRet;
-        }
+        //    BlockMessageInPreparation = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), TA, SA, SID, DataList, ExtraLenByte);
+        //    bRet = GenerateSerialOutput(out SerialOutputDataList, BlockMessageInPreparation);
+        //    out_data = SerialOutputDataList;
+        //    return bRet;
+        //}
 
         public bool GenerateSerialOutput(out List<byte> out_data, BlockMessage msg_to_process)
         {
@@ -345,6 +269,7 @@ namespace BlockMessageLibrary
         }
 
         public String GetSerialOutputString() { return out_msg_data_in_string; }
+        public BlockMessage GetBlockMessage() { return BlockMessageInPreparation; }
 
     }
 
