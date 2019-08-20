@@ -50,69 +50,22 @@ namespace KWP_2000
             return bRet;
         }
 
-        private uint ABS_Reply_StopCommunication_Length = 0x01;
         private BlockMessage PrepareResponse_StopCommunication_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            out_msg.ClearBlockMessage();
-            // Format 4
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // Len
-            this_byte = (byte)ABS_Reply_StopCommunication_Length;
-            out_msg.SetLenByte(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
+            List<byte> out_list = new List<byte>();
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, true); // for format_4
             return out_msg;
         }
 
         private uint ABS_KeyByte_for_StartCommunication = 0x8FEF;
-        private uint ABS_Reply_StartCommunication_Length = 0x03;
-
         private BlockMessage PrepareResponse_StartCommunication_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            out_msg.ClearBlockMessage();
-            // Format 4
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // Len
-            this_byte = (byte) ABS_Reply_StartCommunication_Length;
-            out_msg.SetLenByte(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // KeyByte * 2
-            this_byte = (byte)(ABS_KeyByte_for_StartCommunication & 0xff);
-            out_msg.AddToDataList(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            this_byte = (byte)((ABS_KeyByte_for_StartCommunication >> 8) & 0xff);
-            out_msg.AddToDataList(this_byte);
+            List<byte> out_list = new List<byte>();
+            out_list.Add((byte)(ABS_KeyByte_for_StartCommunication & 0xff));
+            out_list.Add((byte)((ABS_KeyByte_for_StartCommunication >> 8) & 0xff));
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, true); // for format_4
             return out_msg;
         }
 
@@ -215,28 +168,11 @@ namespace KWP_2000
             return bRet;
         }
 
-        private uint OBD_Reply_StopCommunication_Length = 0x01;
         private BlockMessage PrepareResponse_StopCommunication_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            out_msg.ClearBlockMessage();
-            // Format 2
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | OBD_Reply_StopCommunication_Length);
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
+            List<byte> out_list = new List<byte>();
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, false); // for format_2
             return out_msg;
         }
 
@@ -244,31 +180,11 @@ namespace KWP_2000
         private uint OBD_Reply_StartCommunication_Length = 0x03;
         private BlockMessage PrepareResponse_StartCommunication_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            out_msg.ClearBlockMessage();
-            // Format 2
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | OBD_Reply_StartCommunication_Length);
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // KeyByte * 2
-            this_byte = (byte)(OBD_KeyByte_for_StartCommunication & 0xff);
-            out_msg.AddToDataList(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            this_byte = (byte)((OBD_KeyByte_for_StartCommunication >> 8) & 0xff);
-            out_msg.AddToDataList(this_byte);
+            List<byte> out_list = new List<byte>();
+            out_list.Add((byte)(OBD_KeyByte_for_StartCommunication & 0xff));
+            out_list.Add((byte)((OBD_KeyByte_for_StartCommunication >> 8) & 0xff));
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, false); // for format_2
             return out_msg;
         }
 
@@ -280,53 +196,31 @@ namespace KWP_2000
         // P0230: 0x0230
         // U0486: 0xC486
 
+        private List<byte> GenerateFixednResponseData_OBD()
+        {
+            List<byte> ret_list = new List<byte>();
+            ret_list.AddRange(fixed_response_data_obd);
+            return ret_list;
+        }
+
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            // Read Status of DTC & Group of DTC
-            List<byte> in_list = in_msg.GetDataList();
-
-            ReadDiagnosticTroubleCodesByStatus_OBD_StatusOfDTC = (uint) in_list.IndexOf(0);
-            ReadDiagnosticTroubleCodesByStatus_OBD_GroupOfDTC = (uint)in_list.IndexOf(1) + ((uint)in_list.IndexOf(2))<<8;
-            //[01:51:41.891] Format 2 - 84 10 F1 18 00 FF 00  9C - ok
-            //[01:51:42.012] Format 2 - 8E F1 10 58 04 01 15 61 40 85 62 02 30 62 C4 86 62  C9 - ok
-            out_msg.ClearBlockMessage();
-            // Format 2
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6) | (fixed_response_data_obd.Length) );
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // returning_data
-            foreach(byte res in fixed_response_data_obd)
-            {
-                out_msg.AddToDataList(res);
-                out_msg.UpdateCheckSum(res);
-            }
+            List<byte> out_list = GenerateFixednResponseData_OBD();
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, false); // for format_2
             return out_msg;
-
         }
 
         public bool ProcessMessage_OBD(BlockMessage obd_msg, ref BlockMessage ResponseMessage)
         {
             bool bRet = false;
-            BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
-            List<byte> output_data = new List<byte>();
 
             switch ((ENUM_SID)obd_msg.GetSID())
             {
                 case ENUM_SID.ReadDiagnosticTroubleCodesByStatus:
+                    List<byte> in_list = obd_msg.GetDataList();
+                    ReadDiagnosticTroubleCodesByStatus_OBD_StatusOfDTC = (uint)in_list.IndexOf(0);
+                    ReadDiagnosticTroubleCodesByStatus_OBD_GroupOfDTC = (uint)in_list.IndexOf(1) + ((uint)in_list.IndexOf(2)) << 8;
                     PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(obd_msg, ref ResponseMessage);
                     bRet = true;
                     break;
