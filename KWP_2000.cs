@@ -13,6 +13,8 @@ namespace KWP_2000
         private const byte ADDRESS_OBD = 0x10;
         private const int min_delay_before_response = 20;
         private const byte RETURN_SID_OR_VALUE = 0x40;
+        private const byte NEGATIVE_RESPONSE_SID = 0x7F;
+        private const uint ReadDiagnosticCodesByStatus_MaxNumberOfDTC = 6;
 
         enum ENUM_SID
         {
@@ -21,6 +23,7 @@ namespace KWP_2000
             StopCommunication = 0x82,
             MAX_SID_PLUS_1
         };
+
 
         //private BlockMessage InComingMessage = new BlockMessage();
         private BlockMessage ResponseMessage = new BlockMessage();
@@ -66,7 +69,7 @@ namespace KWP_2000
             out_msg.UpdateCheckSum(this_byte);
             // Len
             this_byte = (byte)ABS_Reply_StopCommunication_Length;
-            out_msg.SetLen(this_byte);
+            out_msg.SetLenByte(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SID
             this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
@@ -97,7 +100,7 @@ namespace KWP_2000
             out_msg.UpdateCheckSum(this_byte);
             // Len
             this_byte = (byte) ABS_Reply_StartCommunication_Length;
-            out_msg.SetLen(this_byte);
+            out_msg.SetLenByte(this_byte);
             out_msg.UpdateCheckSum(this_byte);
             // SID
             this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
@@ -122,44 +125,37 @@ namespace KWP_2000
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            byte this_byte;
-            // Read Status of DTC & Group of DTC
-            List<byte> in_list = in_msg.GetDataList();
-
-            ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = (uint)in_list.IndexOf(0);
-            ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = (uint)in_list.IndexOf(1) + ((uint)in_list.IndexOf(2)) << 8;
-            //[01:52:30.915] Format 2 - 84 28 FA 18 00 40 00  FE - ok
-            //[01:52:30.980] Format 4 - 80 FA 28 0E 58 04 50 43 E0 50 45 E0 50 52 A0 50 53 A0 79 
-            out_msg.ClearBlockMessage();
-            // Format 4
-            // FMT
-            this_byte = (byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6));
-            out_msg.SetFmt(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SA
-            this_byte = in_msg.GetSA();
-            out_msg.SetTA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // TA
-            this_byte = in_msg.GetTA();
-            out_msg.SetSA(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // Len
-            this_byte = (byte) fixed_response_data_abs.Length;
-            out_msg.SetLen(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // SID
-            this_byte = (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE);
-            out_msg.SetSID(this_byte);
-            out_msg.UpdateCheckSum(this_byte);
-            // returning_data
-            foreach (byte res in fixed_response_data_abs)
-            {
-                out_msg.AddToDataList(res);
-                out_msg.UpdateCheckSum(res);
-            }
+            List<byte> out_list = new List<byte>();
+            out_list.AddRange(fixed_response_data_abs);
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, true); // for format_4
             return out_msg;
         }
+
+        private const byte NegativeResponse_DuringInit_ReadDiagnosticTroubleCodesByStatus_ResponseCode = 0x78; 
+        private BlockMessage PrepareNegativeResponse_DuringInit_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
+        {
+            List<byte> out_list = new List<byte>();
+
+            out_list.Add(in_msg.GetSID());
+            out_list.Add(NegativeResponse_DuringInit_ReadDiagnosticTroubleCodesByStatus_ResponseCode);
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                NEGATIVE_RESPONSE_SID, out_list, true); // for format_4
+            return out_msg;
+        }
+
+        private const byte NegativeResponse_MsgError_ReadDiagnosticTroubleCodesByStatus_ResponseCode = 0x12;
+        private BlockMessage PrepareNegativeResponse_MsgErrort_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
+        {
+            List<byte> out_list = new List<byte>();
+
+            out_list.Add(in_msg.GetSID());
+            out_list.Add(NegativeResponse_MsgError_ReadDiagnosticTroubleCodesByStatus_ResponseCode);
+            out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
+                                                NEGATIVE_RESPONSE_SID, out_list, true); // for format_4
+            return out_msg;
+        }
+
 
         public bool ProcessMessage_ABS(BlockMessage abs_msg, ref BlockMessage ResponseMessage)
         {
@@ -168,6 +164,10 @@ namespace KWP_2000
             switch((ENUM_SID)abs_msg.GetSID())
             {
                 case ENUM_SID.ReadDiagnosticTroubleCodesByStatus:
+                    // Read Status of DTC & Group of DTC
+                    List<byte> in_list = abs_msg.GetDataList();
+                    ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = (uint)in_list.IndexOf(0);
+                    ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = (uint)in_list.IndexOf(1) + ((uint)in_list.IndexOf(2)) << 8;
                     PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(abs_msg, ref ResponseMessage);
                     bRet = true;
                     break;
