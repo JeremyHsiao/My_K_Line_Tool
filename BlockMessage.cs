@@ -84,7 +84,7 @@ namespace BlockMessageLibrary
         private byte SID;
         private List<Byte> msg_data;
         private byte CheckSum;
-        private const uint Max_Len_6Bit = 0x3f;
+        public const uint Max_Len_6Bit = 0x3f;
 
         public BlockMessage()
         {
@@ -174,7 +174,6 @@ namespace BlockMessageLibrary
         private BlockMessage BlockMessageInPreparation = new BlockMessage();
         private List<byte> SerialOutputDataList = new List<byte>();
 
-        private const uint Max_Len_6Bit = 0x3f;
         // Please update according to ECU parameter
         private uint ECU_Dbmax = 40;
 
@@ -213,7 +212,7 @@ namespace BlockMessageLibrary
             // First calculate data length
             uint len = BlockMessageInPreparation.GetMessageTotalLen();
 
-            if ((BlockMessageInPreparation.GetFmt() & ~Max_Len_6Bit) == ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6))
+            if ((BlockMessageInPreparation.GetFmt() & ~BlockMessage.Max_Len_6Bit) == ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6))
             {
                 // This for format 2 or 4 
                 // Common portion
@@ -228,7 +227,7 @@ namespace BlockMessageLibrary
                 out_msg_data_in_string += byte_data.ToString("X2") + " ";
                 SerialOutputDataList.Add(byte_data);
 
-                if ((len > Max_Len_6Bit) && (len < ECU_Dbmax))
+                if ((len > BlockMessage.Max_Len_6Bit) && (len < ECU_Dbmax))
                 {
                     // Format 4
                     out_msg_data_in_string = "Out-format 4 - " + out_msg_data_in_string;
@@ -237,7 +236,7 @@ namespace BlockMessageLibrary
                     SerialOutputDataList.Add(byte_data);
                     bRet = true;
                 }
-                else if ((len < ECU_Dbmax) && (len <= Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
+                else if ((len < ECU_Dbmax) && (len <= BlockMessage.Max_Len_6Bit))     // max 6-bit when there isn't extra length byte
                 {
                     // Format 2
                     out_msg_data_in_string = "Out-format 2 - " + out_msg_data_in_string;
