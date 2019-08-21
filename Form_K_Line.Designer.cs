@@ -69,10 +69,10 @@
             // 
             // rtbKLineData
             // 
-            this.rtbKLineData.Location = new System.Drawing.Point(12, 64);
+            this.rtbKLineData.Location = new System.Drawing.Point(12, 410);
             this.rtbKLineData.Name = "rtbKLineData";
             this.rtbKLineData.ReadOnly = true;
-            this.rtbKLineData.Size = new System.Drawing.Size(760, 485);
+            this.rtbKLineData.Size = new System.Drawing.Size(760, 139);
             this.rtbKLineData.TabIndex = 22;
             this.rtbKLineData.Text = "";
             // 

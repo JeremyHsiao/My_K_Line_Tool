@@ -140,6 +140,7 @@ namespace K_Line_Test
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
+                rtbKLineData.ScrollToCaret();
 
                 BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                 BlockMessage out_message = new BlockMessage();
@@ -165,6 +166,7 @@ namespace K_Line_Test
                 MySerialPort.SendToSerial(output_data.ToArray());
                 message_in_string = out_str_proc.GetSerialOutputString();
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
+                rtbKLineData.ScrollToCaret();
             }
         }
     }
