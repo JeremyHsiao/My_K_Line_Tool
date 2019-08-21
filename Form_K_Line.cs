@@ -11,6 +11,7 @@ using MySerialLibrary;
 using BlockMessageLibrary;
 using System.Threading;
 using KWP_2000;
+using DTC_ABS;
 
 namespace K_Line_Test
 {
@@ -29,7 +30,7 @@ namespace K_Line_Test
         private void Serial_UpdatePortName()
         {
             lstSerialComPort.Items.Clear();
-            
+
             foreach (string comport_s in MySerial.FindAllSerialPort())
             {
                 lstSerialComPort.Items.Add(comport_s);
@@ -120,14 +121,26 @@ namespace K_Line_Test
             }
         }
 
-        private const int min_delay_before_response = 20;
+        private void Scan_DTC(KWP_2000_Process kwp2000)
+        {
+            uint byte_bit_index = 0;
+
+            foreach (var item in abs_lut)
+            {
+                if (item.Checked == true)
+                {
+                    kwp2000.ABS_DTC_Queue_Add(ABS_DTC_Table.Find_ABS_DTC((byte_bit_index/8), (byte_bit_index%8)));
+                }
+                byte_bit_index++;
+            }
+        }
 
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
         {
             String current_time_str;
 
             // Regularly polling request message
-            while (MySerialPort.KLineBlockMessageList.Count()>0)
+            while (MySerialPort.KLineBlockMessageList.Count() > 0)
             {
                 current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
                 BlockMessage message = MySerialPort.KLineBlockMessageList[0];
@@ -137,20 +150,20 @@ namespace K_Line_Test
                 rtbKLineData.AppendText(current_time_str + raw_data_in_string + "\n");
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
-                rtbKLineData.AppendText(current_time_str + message_in_string + "\n" );
+                rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
                 rtbKLineData.ScrollToCaret();
 
                 BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                 BlockMessage out_message = new BlockMessage();
                 KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
-                List<byte> output_data = new List<byte>();
-
+                Scan_DTC(kwp_2000_process);  // Scan Checkbox status
                 kwp_2000_process.ProcessMessage(message, ref out_message);
+                List<byte> output_data = new List<byte>();
                 out_str_proc.GenerateSerialOutput(out output_data, out_message);
 
                 MySerialPort.Add_ECU_Filtering_Data(output_data);
                 MySerialPort.Enable_ECU_Filtering(true);
-                Thread.Sleep((KWP_2000_Process.min_delay_before_response));
+                Thread.Sleep((KWP_2000_Process.min_delay_before_response-1));
                 current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
                 MySerialPort.SendToSerial(output_data.ToArray());
                 message_in_string = out_str_proc.GetSerialOutputString();
@@ -159,8 +172,28 @@ namespace K_Line_Test
             }
         }
 
-        private void Tmr_Scan_ABS_DTC_Tick(object sender, EventArgs e)
+
+        private List<CheckBox> abs_lut = new List<CheckBox>();
+        private void Form_K_Line_Load(object sender, EventArgs e)
         {
+            // Generate abs_lut -- need to add CheckBox in sequence of byte/bit index from (0,0)
+            abs_lut.Add(ABS_0x5055); //, ABS_DTC_Code.ECU_Control_unit_failure);
+            abs_lut.Add(ABS_0x5019); //, ABS_DTC_Code.VR_Valve_Relay_Fault);
+            abs_lut.Add(ABS_0x5017); //, ABS_DTC_Code.Valves_EV_Inlet_value_Failure_F);
+            abs_lut.Add(ABS_0x5013); //, ABS_DTC_Code.Valves_EV_Inlet_value_Failure_R);
+            abs_lut.Add(ABS_0x5018); //, ABS_DTC_Code.Valves_AV_Outlet_value_Failure_F);
+            abs_lut.Add(ABS_0x5014); //, ABS_DTC_Code.Valves_AV_Outlet_value_Failure_R);
+            abs_lut.Add(ABS_0x5053); //, ABS_DTC_Code.UZ_Batter_Voltage_fault_Over_Voltage);
+            abs_lut.Add(ABS_0x5052); //, ABS_DTC_Code.UZ_Batter_Voltage_fault_Under_Voltage);
+            // Byte (1,0)
+            abs_lut.Add(ABS_0x5035); //, ABS_DTC_Code.RFP_Pump_Motor_Failure);
+            abs_lut.Add(ABS_0x5043); //, ABS_DTC_Code.WSS_ohmic_WSS_ohmic_failure_F);
+            abs_lut.Add(ABS_0x5045); //, ABS_DTC_Code.WSS_ohmic_WSS_ohmic_failure_R);
+            abs_lut.Add(ABS_0x5042); //, ABS_DTC_Code.WSS_plausibility_failure_F);
+            abs_lut.Add(ABS_0x5044); //, ABS_DTC_Code.WSS_plausibility_failure_R);
+            abs_lut.Add(ABS_0x5025); //, ABS_DTC_Code.WSS_generic_failure);
+
+            // Generate obd_lut -- need to add CheckBox in sequence of byte/bit index from (0,0)
 
         }
     }

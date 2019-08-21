@@ -72,11 +72,49 @@ namespace KWP_2000
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = 0;
         private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
-        private byte[] dtc_status_table = { 0, 0xA0, 0xC0, 0xE0 };
         // 0x5043
         // 0x5045
         // 0x5052
         // 0x5053
+        public const byte Lamp_OFF_Failure_Set   = 0x60;
+        public const byte Lamp_OFF_Failure_Reset = 0x20;
+        public const byte Lamp_ON_Failure_Set    = 0xE0;
+        public const byte Lamp_ON_Failure_Reset  = 0xA0;
+        private byte[] dtc_status_table = { Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };  // bit 7: lamp off/on (always on here); bit 6,5: 01/11 = failure is reset/set at time of request
+        private byte[] dtc_status_table_lamp_may_by_off = { Lamp_OFF_Failure_Reset, Lamp_OFF_Failure_Set, Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };
+        private Queue<CMD_E_ABS_DTC> DTC_Respnse_Queue = new Queue<CMD_E_ABS_DTC>();
+
+        public void ABS_DTC_Queue_Clear()
+        {
+            DTC_Respnse_Queue.Clear();
+        }
+
+        public void ABS_DTC_Queue_Add(CMD_E_ABS_DTC new_dtc)
+        {
+            DTC_Respnse_Queue.Enqueue(new_dtc);
+        }
+
+        private List<byte> GenerateQueuedResponseData_ABS()
+        {
+            List<byte> ret_list = new List<byte>();
+            List<byte> status_of_dtc_list = new List<byte>();
+            Byte DTC_no = 0;
+            uint dtc;
+
+            while((DTC_Respnse_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
+            {
+                CMD_E_ABS_DTC this_abs_dtc;
+                this_abs_dtc = DTC_Respnse_Queue.Dequeue();
+                dtc = (uint) this_abs_dtc.DTC;
+                ret_list.Add((byte)(dtc >> 8));               // HighByte
+                ret_list.Add((byte)(dtc & 0xff));             // LowByte
+                ret_list.Add(Lamp_ON_Failure_Set);        // Status DTC -- randon values 
+                DTC_no++;
+            }
+            status_of_dtc_list.Add(DTC_no);
+            status_of_dtc_list.AddRange(status_of_dtc_list);
+            return status_of_dtc_list;
+        }
 
         private List<byte> GenerateRandomResponseData_ABS()
         {

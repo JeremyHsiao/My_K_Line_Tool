@@ -118,6 +118,15 @@ namespace DTC_ABS
                 return null;
         }
 
+        static public CMD_E_ABS_DTC Find_ABS_DTC(uint byte_idx, uint bit_idx)
+        {
+            foreach (CMD_E_ABS_DTC item in abs_dtc_table)
+            {
+                if ((item.ByteIndex == byte_idx)&&(item.BitIndex == bit_idx))
+                    return item;
+            }
+            return null;
+        }
         static public int Count()
         {
             return abs_dtc_table.Count();

@@ -103,7 +103,6 @@
             this.Group_DTC_data_option = new System.Windows.Forms.GroupBox();
             this.DTC_option_all_in_turn = new System.Windows.Forms.RadioButton();
             this.DTC_option_first_six = new System.Windows.Forms.RadioButton();
-            this.tmr_Scan_ABS_DTC = new System.Windows.Forms.Timer(this.components);
             this.Group_OBD_Error_Code.SuspendLayout();
             this.Group_ABS_Error_Code.SuspendLayout();
             this.Group_DTC_data_option.SuspendLayout();
@@ -950,6 +949,7 @@
             // 
             this.Group_DTC_data_option.Controls.Add(this.DTC_option_all_in_turn);
             this.Group_DTC_data_option.Controls.Add(this.DTC_option_first_six);
+            this.Group_DTC_data_option.Enabled = false;
             this.Group_DTC_data_option.Font = new System.Drawing.Font("新細明體", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.Group_DTC_data_option.Location = new System.Drawing.Point(12, 72);
             this.Group_DTC_data_option.Margin = new System.Windows.Forms.Padding(2);
@@ -984,11 +984,6 @@
             this.DTC_option_first_six.Text = "First-6 DTC";
             this.DTC_option_first_six.UseVisualStyleBackColor = true;
             // 
-            // tmr_Scan_ABS_DTC
-            // 
-            this.tmr_Scan_ABS_DTC.Interval = 500;
-            this.tmr_Scan_ABS_DTC.Tick += new System.EventHandler(this.Tmr_Scan_ABS_DTC_Tick);
-            // 
             // Form_K_Line
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -1003,6 +998,7 @@
             this.Controls.Add(this.btnRefreshCOMNo);
             this.Name = "Form_K_Line";
             this.Text = "K_Line_Test";
+            this.Load += new System.EventHandler(this.Form_K_Line_Load);
             this.Group_OBD_Error_Code.ResumeLayout(false);
             this.Group_OBD_Error_Code.PerformLayout();
             this.Group_ABS_Error_Code.ResumeLayout(false);
@@ -1089,7 +1085,6 @@
         private System.Windows.Forms.GroupBox Group_DTC_data_option;
         private System.Windows.Forms.RadioButton DTC_option_all_in_turn;
         private System.Windows.Forms.RadioButton DTC_option_first_six;
-        private System.Windows.Forms.Timer tmr_Scan_ABS_DTC;
     }
 }
 
