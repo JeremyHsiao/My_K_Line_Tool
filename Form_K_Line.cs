@@ -199,6 +199,7 @@ namespace K_Line_Test
 
 
         private List<CheckBox> abs_lut = new List<CheckBox>();
+        private List<CheckBox> obd_lut = new List<CheckBox>();
         private void Form_K_Line_Load(object sender, EventArgs e)
         {
             // Generate abs_lut -- need to add CheckBox in sequence of byte/bit index from (0,0)
@@ -219,7 +220,62 @@ namespace K_Line_Test
             abs_lut.Add(ABS_0x5025); //, ABS_DTC_Code.WSS_generic_failure);
 
             // Generate obd_lut -- need to add CheckBox in sequence of byte/bit index from (0,0)
-
+            obd_lut.Add(OBD_P0503);
+            obd_lut.Add(OBD_C0083);
+            obd_lut.Add(OBD_C0085);
+            obd_lut.Add(OBD_P0105);
+            obd_lut.Add(OBD_P0110);
+            obd_lut.Add(OBD_P0115);
+            obd_lut.Add(OBD_P0120);
+            obd_lut.Add(OBD_P0130);
+            // Byte (1,0)
+            obd_lut.Add(OBD_P0135);
+            obd_lut.Add(OBD_P0150);
+            obd_lut.Add(OBD_P0155);
+            obd_lut.Add(OBD_P0201);
+            obd_lut.Add(OBD_P0202);
+            obd_lut.Add(OBD_P0217);
+            obd_lut.Add(OBD_P0230);
+            obd_lut.Add(OBD_P0335);
+            // Byte (2,0)
+            obd_lut.Add(OBD_P0336);
+            obd_lut.Add(OBD_P0351);
+            obd_lut.Add(OBD_P0352);
+            obd_lut.Add(OBD_P0410);
+            obd_lut.Add(OBD_P0480);
+            obd_lut.Add(OBD_P0500);
+            obd_lut.Add(OBD_P0501);
+            obd_lut.Add(OBD_P0505);
+            // Byte (3,0)
+            obd_lut.Add(OBD_P0512);
+            obd_lut.Add(OBD_P0560);
+            obd_lut.Add(OBD_P0601);
+            obd_lut.Add(OBD_P0604);
+            obd_lut.Add(OBD_P0605);
+            obd_lut.Add(OBD_P0606);
+            obd_lut.Add(OBD_P0620_PIN2);
+            obd_lut.Add(OBD_P0620_PIN31);
+            // Byte (4,0)
+            obd_lut.Add(OBD_P0650);
+            obd_lut.Add(OBD_P0655);
+            obd_lut.Add(OBD_P0A0F);
+            obd_lut.Add(OBD_P1300);
+            obd_lut.Add(OBD_P1310);
+            obd_lut.Add(OBD_P1536);
+            obd_lut.Add(OBD_P1607);
+            obd_lut.Add(OBD_P1800);
+            // Byte (5,0)
+            obd_lut.Add(OBD_P2158);
+            obd_lut.Add(OBD_P2600);
+            obd_lut.Add(OBD_U0001);
+            obd_lut.Add(OBD_U0002);
+            obd_lut.Add(OBD_U0121);
+            obd_lut.Add(OBD_U0122);
+            obd_lut.Add(OBD_U0128);
+            obd_lut.Add(OBD_U0140);
+            // Byte (6,0)
+            obd_lut.Add(OBD_U0426);
+            obd_lut.Add(OBD_U0486);
         }
     }
 }
