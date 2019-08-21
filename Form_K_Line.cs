@@ -12,6 +12,7 @@ using BlockMessageLibrary;
 using System.Threading;
 using KWP_2000;
 using DTC_ABS;
+using DTC_OBD;
 
 namespace K_Line_Test
 {

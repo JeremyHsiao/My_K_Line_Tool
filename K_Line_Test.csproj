@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockMessage.cs" />
+    <Compile Include="DTC_OBD.cs" />
     <Compile Include="DTC_ABS.cs" />
     <Compile Include="KWP_2000.cs" />
     <Compile Include="Form_K_Line.cs">
