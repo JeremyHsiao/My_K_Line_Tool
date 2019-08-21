@@ -959,6 +959,7 @@
             this.Group_DTC_data_option.TabIndex = 26;
             this.Group_DTC_data_option.TabStop = false;
             this.Group_DTC_data_option.Text = "DTC data options";
+            this.Group_DTC_data_option.Visible = false;
             // 
             // DTC_option_all_in_turn
             // 
