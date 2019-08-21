@@ -178,6 +178,8 @@ namespace K_Line_Test
                 BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                 BlockMessage out_message = new BlockMessage();
                 KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
+                //Use_Random_DTC(kwp_2000_process);  // Random Test
+                //Use_Fixed_DTC_from_HQ(kwp_2000_process);  // Simulate response from a ECU device
                 Scan_DTC_from_UI(kwp_2000_process);  // Scan Checkbox status and add DTC into queue
                 kwp_2000_process.ProcessMessage(message, ref out_message);
                 List<byte> output_data = new List<byte>();
