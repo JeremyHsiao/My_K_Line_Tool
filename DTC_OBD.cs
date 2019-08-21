@@ -146,77 +146,77 @@ namespace DTC_OBD
                     "WSS_Plausibility", "WSS Plausibility Failure - Rear"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0217,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0230,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 6, OBD_DTC_Code.P0230,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0335,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 7, OBD_DTC_Code.P0335,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0336,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 0, OBD_DTC_Code.P0336,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0351,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 1, OBD_DTC_Code.P0351,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0352,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 2, OBD_DTC_Code.P0352,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0410,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 3, OBD_DTC_Code.P0410,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0480,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 4, OBD_DTC_Code.P0480,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0500,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 5, OBD_DTC_Code.P0500,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0501,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 6, OBD_DTC_Code.P0501,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0505,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 7, OBD_DTC_Code.P0505,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0512,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 0, OBD_DTC_Code.P0512,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0560,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 1, OBD_DTC_Code.P0560,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0601,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 2, OBD_DTC_Code.P0601,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0604,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 3, OBD_DTC_Code.P0604,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0605,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 4, OBD_DTC_Code.P0605,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0606,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 5, OBD_DTC_Code.P0606,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0620_PIN2,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 6, OBD_DTC_Code.P0620_PIN2,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0620_PIN31,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 7, OBD_DTC_Code.P0620_PIN31,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0650,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 0, OBD_DTC_Code.P0650,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0655,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 1, OBD_DTC_Code.P0655,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0A0F,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 2, OBD_DTC_Code.P0A0F,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P1300,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 3, OBD_DTC_Code.P1300,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P1310,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 4, OBD_DTC_Code.P1310,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P1536,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 5, OBD_DTC_Code.P1536,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P1607,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 6, OBD_DTC_Code.P1607,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P1800,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 7, OBD_DTC_Code.P1800,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P2158,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 0, OBD_DTC_Code.P2158,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P2600,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 1, OBD_DTC_Code.P2600,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0001,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 2, OBD_DTC_Code.U0001,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0002,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 3, OBD_DTC_Code.U0002,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0121,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 4, OBD_DTC_Code.U0121,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0122,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 5, OBD_DTC_Code.U0122,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0128,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 6, OBD_DTC_Code.U0128,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0140,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 7, OBD_DTC_Code.U0140,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0426,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(6, 0, OBD_DTC_Code.U0426,
                     "WSS_Generic", "WSS Generic Failure"));
-            obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.U0486,
+            obd_dtc_table.Add(new CMD_F_OBD_DTC(6, 1, OBD_DTC_Code.U0486,
                     "WSS_Generic", "WSS Generic Failure"));
         }
 
