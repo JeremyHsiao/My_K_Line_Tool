@@ -147,10 +147,27 @@ namespace KWP_2000
             List<byte> status_of_dtc_list = new List<byte>();
             Byte DTC_no = 0;
 
-            while((ABS_DTC_Data_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
+            while ((ABS_DTC_Data_Queue.Count > 0) && (DTC_no < ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
             {
                 DTC_Data this_abs_dtc = ABS_DTC_Data_Queue.Dequeue();
                 ret_list.AddRange(this_abs_dtc.ToByteList());
+                DTC_no++;
+            }
+            status_of_dtc_list.Add(DTC_no);
+            status_of_dtc_list.AddRange(ret_list);
+            return status_of_dtc_list;
+        }
+
+        private List<byte> GenerateQueuedResponseData_OBD()
+        {
+            List<byte> ret_list = new List<byte>();
+            List<byte> status_of_dtc_list = new List<byte>();
+            Byte DTC_no = 0;
+
+            while((OBD_DTC_Data_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
+            {
+                DTC_Data this_obd_dtc = OBD_DTC_Data_Queue.Dequeue();
+                ret_list.AddRange(this_obd_dtc.ToByteList());
                 DTC_no++;
             }
             status_of_dtc_list.Add(DTC_no);
@@ -284,7 +301,8 @@ namespace KWP_2000
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            List<byte> out_list = GenerateFixednResponseData_OBD();
+            //List<byte> out_list = GenerateFixednResponseData_OBD();
+            List<byte> out_list = GenerateQueuedResponseData_OBD();
             out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
                                                 (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, false); // for format_2
             return out_msg;
