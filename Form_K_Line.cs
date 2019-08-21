@@ -121,7 +121,28 @@ namespace K_Line_Test
             }
         }
 
-        private void Scan_DTC(KWP_2000_Process kwp2000)
+        private void Use_Fixed_DTC_from_HQ(KWP_2000_Process kwp2000)
+        {
+            // byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
+            kwp2000.ABS_DTC_Queue_Add(0x50, 0x43, 0xE0);
+            kwp2000.ABS_DTC_Queue_Add(0x50, 0x45, 0xE0);
+            kwp2000.ABS_DTC_Queue_Add(0x50, 0x52, 0xA0);
+            kwp2000.ABS_DTC_Queue_Add(0x50, 0x53, 0xA0);
+        }
+
+        private void Use_Random_DTC(KWP_2000_Process kwp2000)
+        {
+            Random rs = new Random();
+            Byte DTC_no = (byte)(rs.Next(10));
+            DTC_no = (byte)((DTC_no <= KWP_2000_Process.ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
+            for (int no = 0; no < DTC_no; no++)
+            {
+                CMD_E_ABS_DTC random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
+                kwp2000.ABS_DTC_Queue_Add(random_dtc, (byte)kwp2000.dtc_status_table[rs.Next(kwp2000.dtc_status_table.Length)]);
+            }
+        }
+
+        private void Scan_DTC_from_UI(KWP_2000_Process kwp2000)
         {
             uint byte_bit_index = 0;
 
@@ -129,7 +150,8 @@ namespace K_Line_Test
             {
                 if (item.Checked == true)
                 {
-                    kwp2000.ABS_DTC_Queue_Add(ABS_DTC_Table.Find_ABS_DTC((byte_bit_index/8), (byte_bit_index%8)));
+                    // If CheckBox is checked, treat it as Lamp_ON_Failure_Set
+                    kwp2000.ABS_DTC_Queue_Add(ABS_DTC_Table.Find_ABS_DTC((byte_bit_index/8), (byte_bit_index%8)), KWP_2000_Process.Lamp_ON_Failure_Set);
                 }
                 byte_bit_index++;
             }
@@ -156,7 +178,7 @@ namespace K_Line_Test
                 BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                 BlockMessage out_message = new BlockMessage();
                 KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
-                Scan_DTC(kwp_2000_process);  // Scan Checkbox status
+                Scan_DTC_from_UI(kwp_2000_process);  // Scan Checkbox status and add DTC into queue
                 kwp_2000_process.ProcessMessage(message, ref out_message);
                 List<byte> output_data = new List<byte>();
                 out_str_proc.GenerateSerialOutput(out output_data, out_message);

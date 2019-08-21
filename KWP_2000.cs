@@ -8,6 +8,29 @@ using DTC_ABS;
 
 namespace KWP_2000
 {
+    class DTC_Data
+    {
+        private byte dtc_high;
+        private byte dtc_low;
+        private byte status_of_dtc;
+
+        public DTC_Data(byte high, byte low, byte status)
+        {
+            dtc_high = high;
+            dtc_low = low;
+            status_of_dtc = status;
+        }
+
+        public List<byte> ToByteList()
+        {
+            List<byte> ret_list = new List<byte>();
+            ret_list.Add(dtc_high);
+            ret_list.Add(dtc_low);
+            ret_list.Add(status_of_dtc);
+            return ret_list;
+        }
+    }
+
     class KWP_2000_Process
     {
         public const byte ADDRESS_ABS = 0x28;
@@ -71,7 +94,7 @@ namespace KWP_2000
 
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_ABS_GroupOfDTC = 0;
-        private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
+//        private byte[] fixed_response_data_abs = { 0x04, 0x50, 0x43, 0xE0, 0x50, 0x45, 0xE0, 0x50, 0x52, 0xA0, 0x50, 0x53, 0xA0 };
         // 0x5043
         // 0x5045
         // 0x5052
@@ -80,18 +103,24 @@ namespace KWP_2000
         public const byte Lamp_OFF_Failure_Reset = 0x20;
         public const byte Lamp_ON_Failure_Set    = 0xE0;
         public const byte Lamp_ON_Failure_Reset  = 0xA0;
-        private byte[] dtc_status_table = { Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };  // bit 7: lamp off/on (always on here); bit 6,5: 01/11 = failure is reset/set at time of request
+        public byte[] dtc_status_table = { Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };  // bit 7: lamp off/on (always on here); bit 6,5: 01/11 = failure is reset/set at time of request
         private byte[] dtc_status_table_lamp_may_by_off = { Lamp_OFF_Failure_Reset, Lamp_OFF_Failure_Set, Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };
-        private Queue<CMD_E_ABS_DTC> DTC_Respnse_Queue = new Queue<CMD_E_ABS_DTC>();
+        private Queue<DTC_Data> DTC_Data_Queue = new Queue<DTC_Data>();
 
         public void ABS_DTC_Queue_Clear()
         {
-            DTC_Respnse_Queue.Clear();
+            DTC_Data_Queue.Clear();
         }
 
-        public void ABS_DTC_Queue_Add(CMD_E_ABS_DTC new_dtc)
+        public void ABS_DTC_Queue_Add(byte dtc_high, byte dtc_low, byte lamp_status)
         {
-            DTC_Respnse_Queue.Enqueue(new_dtc);
+            DTC_Data_Queue.Enqueue(new DTC_Data(dtc_high, dtc_low, lamp_status));
+        }
+
+        public void ABS_DTC_Queue_Add(CMD_E_ABS_DTC new_dtc, byte lamp_status)
+        {
+            uint dtc = (uint) new_dtc.DTC;
+            DTC_Data_Queue.Enqueue(new DTC_Data((byte)(dtc >> 8), (byte)(dtc & 0xff), lamp_status));
         }
 
         private List<byte> GenerateQueuedResponseData_ABS()
@@ -99,16 +128,11 @@ namespace KWP_2000
             List<byte> ret_list = new List<byte>();
             List<byte> status_of_dtc_list = new List<byte>();
             Byte DTC_no = 0;
-            uint dtc;
 
-            while((DTC_Respnse_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
+            while((DTC_Data_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
             {
-                CMD_E_ABS_DTC this_abs_dtc;
-                this_abs_dtc = DTC_Respnse_Queue.Dequeue();
-                dtc = (uint) this_abs_dtc.DTC;
-                ret_list.Add((byte)(dtc >> 8));               // HighByte
-                ret_list.Add((byte)(dtc & 0xff));             // LowByte
-                ret_list.Add(Lamp_ON_Failure_Set);        // Status DTC -- randon values 
+                DTC_Data this_abs_dtc = DTC_Data_Queue.Dequeue();
+                ret_list.AddRange(this_abs_dtc.ToByteList());
                 DTC_no++;
             }
             status_of_dtc_list.Add(DTC_no);
@@ -116,33 +140,33 @@ namespace KWP_2000
             return status_of_dtc_list;
         }
 
-        private List<byte> GenerateRandomResponseData_ABS()
-        {
-            Random rs = new Random();
-            List<byte> ret_list = new List<byte>();
-            CMD_E_ABS_DTC random_dtc;
-            uint dtc;
+        //private List<byte> GenerateRandomResponseData_ABS()
+        //{
+        //    Random rs = new Random();
+        //    List<byte> ret_list = new List<byte>();
+        //    CMD_E_ABS_DTC random_dtc;
+        //    uint dtc;
 
-            Byte DTC_no = (byte)(rs.Next(20));
-            DTC_no = (byte)((DTC_no <= ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
-            ret_list.Add(DTC_no);
-            for (int no = 0; no < DTC_no; no++)
-            {
-                random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
-                dtc = (uint)random_dtc.DTC;
-                ret_list.Add((byte)(dtc >> 8));               // HighByte
-                ret_list.Add((byte)(dtc & 0xff));             // LowByte
-                ret_list.Add((byte)dtc_status_table[rs.Next(dtc_status_table.Length)]);        // Status DTC -- randon values 
-            }
-            return ret_list;
-        }
+        //    Byte DTC_no = (byte)(rs.Next(20));
+        //    DTC_no = (byte)((DTC_no <= ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
+        //    ret_list.Add(DTC_no);
+        //    for (int no = 0; no < DTC_no; no++)
+        //    {
+        //        random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
+        //        dtc = (uint)random_dtc.DTC;
+        //        ret_list.Add((byte)(dtc >> 8));               // HighByte
+        //        ret_list.Add((byte)(dtc & 0xff));             // LowByte
+        //        ret_list.Add((byte)dtc_status_table[rs.Next(dtc_status_table.Length)]);        // Status DTC -- randon values 
+        //    }
+        //    return ret_list;
+        //}
 
-        private List<byte> GenerateFixednResponseData_ABS()
-        {
-            List<byte> ret_list = new List<byte>();
-            ret_list.AddRange(fixed_response_data_abs);
-            return ret_list;
-        }
+        //private List<byte> GenerateFixednResponseData_ABS()
+        //{
+        //    List<byte> ret_list = new List<byte>();
+        //    ret_list.AddRange(fixed_response_data_abs);
+        //    return ret_list;
+        //}
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
