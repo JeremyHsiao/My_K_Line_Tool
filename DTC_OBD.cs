@@ -220,7 +220,7 @@ namespace DTC_OBD
                     "WSS_Generic", "WSS Generic Failure"));
         }
 
-        static public CMD_F_OBD_DTC Find_ABS_DTC(OBD_DTC_Code code)
+        static public CMD_F_OBD_DTC Find_OBD_DTC(OBD_DTC_Code code)
         {
             foreach (CMD_F_OBD_DTC item in obd_dtc_table)
             {
@@ -230,7 +230,7 @@ namespace DTC_OBD
             return null;
         }
 
-        static public CMD_F_OBD_DTC Find_ABS_DTC(int index)
+        static public CMD_F_OBD_DTC Find_OBD_DTC(int index)
         {
             if ((index>=0)&&(index < obd_dtc_table.Count))
                 return obd_dtc_table.ElementAt(index);
@@ -238,7 +238,7 @@ namespace DTC_OBD
                 return null;
         }
 
-        static public CMD_F_OBD_DTC Find_ABS_DTC(uint byte_idx, uint bit_idx)
+        static public CMD_F_OBD_DTC Find_OBD_DTC(uint byte_idx, uint bit_idx)
         {
             foreach (CMD_F_OBD_DTC item in obd_dtc_table)
             {

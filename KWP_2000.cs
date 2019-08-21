@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BlockMessageLibrary;
 using DTC_ABS;
+using DTC_OBD;
 
 namespace KWP_2000
 {
@@ -105,22 +106,39 @@ namespace KWP_2000
         public const byte Lamp_ON_Failure_Reset  = 0xA0;
         public byte[] dtc_status_table = { Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };  // bit 7: lamp off/on (always on here); bit 6,5: 01/11 = failure is reset/set at time of request
         private byte[] dtc_status_table_lamp_may_by_off = { Lamp_OFF_Failure_Reset, Lamp_OFF_Failure_Set, Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };
-        private Queue<DTC_Data> DTC_Data_Queue = new Queue<DTC_Data>();
+        private Queue<DTC_Data> ABS_DTC_Data_Queue = new Queue<DTC_Data>();
+        private Queue<DTC_Data> OBD_DTC_Data_Queue = new Queue<DTC_Data>();
 
         public void ABS_DTC_Queue_Clear()
         {
-            DTC_Data_Queue.Clear();
+            ABS_DTC_Data_Queue.Clear();
         }
 
         public void ABS_DTC_Queue_Add(byte dtc_high, byte dtc_low, byte lamp_status)
         {
-            DTC_Data_Queue.Enqueue(new DTC_Data(dtc_high, dtc_low, lamp_status));
+            ABS_DTC_Data_Queue.Enqueue(new DTC_Data(dtc_high, dtc_low, lamp_status));
         }
 
         public void ABS_DTC_Queue_Add(CMD_E_ABS_DTC new_dtc, byte lamp_status)
         {
+            uint dtc = (uint)new_dtc.DTC;
+            ABS_DTC_Data_Queue.Enqueue(new DTC_Data((byte)(dtc >> 8), (byte)(dtc & 0xff), lamp_status));
+        }
+
+        public void OBD_DTC_Queue_Clear()
+        {
+            OBD_DTC_Data_Queue.Clear();
+        }
+
+        public void OBD_DTC_Queue_Add(byte dtc_high, byte dtc_low, byte lamp_status)
+        {
+            OBD_DTC_Data_Queue.Enqueue(new DTC_Data(dtc_high, dtc_low, lamp_status));
+        }
+
+        public void OBD_DTC_Queue_Add(CMD_F_OBD_DTC new_dtc, byte lamp_status)
+        {
             uint dtc = (uint) new_dtc.DTC;
-            DTC_Data_Queue.Enqueue(new DTC_Data((byte)(dtc >> 8), (byte)(dtc & 0xff), lamp_status));
+            OBD_DTC_Data_Queue.Enqueue(new DTC_Data((byte)(dtc >> 8), (byte)(dtc & 0xff), lamp_status));
         }
 
         private List<byte> GenerateQueuedResponseData_ABS()
@@ -129,9 +147,9 @@ namespace KWP_2000
             List<byte> status_of_dtc_list = new List<byte>();
             Byte DTC_no = 0;
 
-            while((DTC_Data_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
+            while((ABS_DTC_Data_Queue.Count>0)&&(DTC_no< ReadDiagnosticCodesByStatus_MaxNumberOfDTC))
             {
-                DTC_Data this_abs_dtc = DTC_Data_Queue.Dequeue();
+                DTC_Data this_abs_dtc = ABS_DTC_Data_Queue.Dequeue();
                 ret_list.AddRange(this_abs_dtc.ToByteList());
                 DTC_no++;
             }

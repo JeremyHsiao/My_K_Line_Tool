@@ -152,10 +152,21 @@ namespace K_Line_Test
                 if (item.Checked == true)
                 {
                     // If CheckBox is checked, treat it as Lamp_ON_Failure_Set
-                    kwp2000.ABS_DTC_Queue_Add(ABS_DTC_Table.Find_ABS_DTC((byte_bit_index/8), (byte_bit_index%8)), KWP_2000_Process.Lamp_ON_Failure_Set);
+                    kwp2000.ABS_DTC_Queue_Add(ABS_DTC_Table.Find_ABS_DTC((byte_bit_index / 8), (byte_bit_index%8)), KWP_2000_Process.Lamp_ON_Failure_Set);
                 }
                 byte_bit_index++;
             }
+
+            foreach (var item in obd_lut)
+            {
+                if (item.Checked == true)
+                {
+                    // If CheckBox is checked, treat it as Lamp_ON_Failure_Set
+                    kwp2000.OBD_DTC_Queue_Add(OBD_DTC_Table.Find_OBD_DTC((byte_bit_index / 8), (byte_bit_index % 8)), KWP_2000_Process.Lamp_ON_Failure_Set);
+                }
+                byte_bit_index++;
+            }
+
         }
 
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
