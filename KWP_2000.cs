@@ -112,7 +112,7 @@ namespace KWP_2000
                 DTC_no++;
             }
             status_of_dtc_list.Add(DTC_no);
-            status_of_dtc_list.AddRange(status_of_dtc_list);
+            status_of_dtc_list.AddRange(ret_list);
             return status_of_dtc_list;
         }
 
@@ -146,7 +146,7 @@ namespace KWP_2000
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
-            List<byte> out_list = GenerateRandomResponseData_ABS();
+            List<byte> out_list = GenerateQueuedResponseData_ABS();
             out_msg = new BlockMessage((byte)((((uint)MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6)), in_msg.GetSA(), in_msg.GetTA(),
                                                 (byte)(in_msg.GetSID() | RETURN_SID_OR_VALUE), out_list, true); // for format_4
             return out_msg;
