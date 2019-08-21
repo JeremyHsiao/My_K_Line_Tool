@@ -103,6 +103,7 @@
             this.Group_DTC_data_option = new System.Windows.Forms.GroupBox();
             this.DTC_option_all_in_turn = new System.Windows.Forms.RadioButton();
             this.DTC_option_first_six = new System.Windows.Forms.RadioButton();
+            this.tmr_Scan_ABS_DTC = new System.Windows.Forms.Timer(this.components);
             this.Group_OBD_Error_Code.SuspendLayout();
             this.Group_ABS_Error_Code.SuspendLayout();
             this.Group_DTC_data_option.SuspendLayout();
@@ -965,9 +966,9 @@
             this.DTC_option_all_in_turn.Location = new System.Drawing.Point(13, 58);
             this.DTC_option_all_in_turn.Margin = new System.Windows.Forms.Padding(2);
             this.DTC_option_all_in_turn.Name = "DTC_option_all_in_turn";
-            this.DTC_option_all_in_turn.Size = new System.Drawing.Size(90, 20);
+            this.DTC_option_all_in_turn.Size = new System.Drawing.Size(124, 20);
             this.DTC_option_all_in_turn.TabIndex = 2;
-            this.DTC_option_all_in_turn.Text = "All in turn";
+            this.DTC_option_all_in_turn.Text = "All DTC in turn";
             this.DTC_option_all_in_turn.UseVisualStyleBackColor = true;
             // 
             // DTC_option_first_six
@@ -982,6 +983,11 @@
             this.DTC_option_first_six.TabStop = true;
             this.DTC_option_first_six.Text = "First-6 DTC";
             this.DTC_option_first_six.UseVisualStyleBackColor = true;
+            // 
+            // tmr_Scan_ABS_DTC
+            // 
+            this.tmr_Scan_ABS_DTC.Interval = 500;
+            this.tmr_Scan_ABS_DTC.Tick += new System.EventHandler(this.Tmr_Scan_ABS_DTC_Tick);
             // 
             // Form_K_Line
             // 
@@ -1083,6 +1089,7 @@
         private System.Windows.Forms.GroupBox Group_DTC_data_option;
         private System.Windows.Forms.RadioButton DTC_option_all_in_turn;
         private System.Windows.Forms.RadioButton DTC_option_first_six;
+        private System.Windows.Forms.Timer tmr_Scan_ABS_DTC;
     }
 }
 

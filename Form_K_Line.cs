@@ -120,8 +120,6 @@ namespace K_Line_Test
             }
         }
 
-        private const byte ADDRESS_ABS = 0x28;
-        private const byte ADDRESS_OBD = 0x10;
         private const int min_delay_before_response = 20;
 
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
@@ -149,25 +147,21 @@ namespace K_Line_Test
 
                 kwp_2000_process.ProcessMessage(message, ref out_message);
                 out_str_proc.GenerateSerialOutput(out output_data, out_message);
-                //if ((out_message.GetFmt() & 0x3f) == 0) // 0 means there is extra len byte
-                //{   
-                //    // format 4
-                //    out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), true); // with extra length byte
-                //}
-                //else
-                //{
-                //    // format 2
-                //    out_str_proc.GenerateSerialOutput(out output_data, out_message.GetTA(), out_message.GetSA(), out_message.GetSID(), out_message.GetDataList(), false); // W/O extra length byte
-                //}
+
                 MySerialPort.Add_ECU_Filtering_Data(output_data);
                 MySerialPort.Enable_ECU_Filtering(true);
-                Thread.Sleep(min_delay_before_response);
+                Thread.Sleep((KWP_2000_Process.min_delay_before_response));
                 current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
                 MySerialPort.SendToSerial(output_data.ToArray());
                 message_in_string = out_str_proc.GetSerialOutputString();
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
                 rtbKLineData.ScrollToCaret();
             }
+        }
+
+        private void Tmr_Scan_ABS_DTC_Tick(object sender, EventArgs e)
+        {
+
         }
     }
 }
