@@ -211,6 +211,10 @@ namespace MySerialLibrary
             }
         }
 
+        //
+        // K-line portion of code
+        //
+
         public List<BlockMessage> KLineBlockMessageList = new List<BlockMessage>();
         public List<String> KLineBlockMessageInStringList = new List<String>();
         public List<String> KLineRawDataInStringList = new List<String>();
@@ -218,8 +222,7 @@ namespace MySerialLibrary
 
         private ProcessBlockMessage KLineKWP2000Process = new ProcessBlockMessage();
 
-        private Queue<byte> Rx_Queue_Log = new Queue<byte>();
-        private bool ECU_filtering = false;
+       private bool ECU_filtering = false;
         private List<byte> ECU_data_to_be_filtered = new List<byte>();
 
         public void Enable_ECU_Filtering(bool enabled)
@@ -239,7 +242,6 @@ namespace MySerialLibrary
             SerialPort sp = (SerialPort)sender;
             MySerialDictionary.TryGetValue(sp.PortName, out Object myserial_serial_obj);
             MySerial myserial = (MySerial)myserial_serial_obj;
-            //Rx_char_buffer_QUEUE
 
             while ( sp.BytesToRead > 0 )
             {
@@ -259,7 +261,6 @@ namespace MySerialLibrary
                 }
                 else
                 {
-                    myserial.Rx_Queue_Log.Enqueue(byte_data);
                     myserial.RawDataInString += byte_data.ToString("X2") + " ";
                     IsMessageReady = myserial.KLineKWP2000Process.ProcessNextByte(byte_data);
                     if (IsMessageReady)
@@ -276,6 +277,11 @@ namespace MySerialLibrary
                 }
             }
         }
+
+        //
+        // END of K-line portion of code
+        //
+
         //
         // End of read part
         //
