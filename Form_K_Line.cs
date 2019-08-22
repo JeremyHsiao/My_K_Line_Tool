@@ -221,7 +221,10 @@ namespace K_Line_Test
                 //Use_Fixed_DTC_from_HQ(kwp_2000_process);  // Simulate response from a ECU device
                 Scan_DTC_from_UI(kwp_2000_process);  // Scan Checkbox status and add DTC into queue
 
+                // Generate output block message according to input message and DTC codes
                 kwp_2000_process.ProcessMessage(in_message, ref out_message);
+
+                // Convert output block message to List<byte> so that it can be sent via UART
                 List<byte> output_data;
                 out_message.GenerateSerialOutput(out output_data);
 
