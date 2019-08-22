@@ -203,7 +203,7 @@ namespace K_Line_Test
                 MySerialPort.KLineBlockMessageList.RemoveAt(0);
                 String raw_data_in_string = MySerialPort.KLineRawDataInStringList[0];
                 MySerialPort.KLineRawDataInStringList.RemoveAt(0);
-                rtbKLineData.AppendText(current_time_str + raw_data_in_string + "\n");
+                //rtbKLineData.AppendText(current_time_str + raw_data_in_string + "\n");
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
                 rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
