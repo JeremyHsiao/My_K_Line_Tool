@@ -118,38 +118,40 @@ namespace DTC_OBD
         static OBD_DTC_Table()
         {
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 0, OBD_DTC_Code.P0503,
-                    "Powertrain", "Vehicle Speed Sensor Intermittent/Erratic/High"));
-            // Failure Type and Description needs to be updated from here
+                    "Engine idling control", "Vehicle Speed Sensor Intermittent/Erratic/High"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 1, OBD_DTC_Code.C0083,
-                    "Chassis", "Valve Replay Fault"));
+                    "Chassis", "Tire Pressure Monitor Malfunction Indicator (Subfault)"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 2, OBD_DTC_Code.C0085,
-                    "Chassis", "Inlet Valve Failure - Front"));
+                    "Chassis", "Traction Disable Indicator (Subfault)"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 3, OBD_DTC_Code.P0105,
-                    "Powertrain", "Inlet Valve Failure - Rear"));
+                    "air/fuel mixture control", "Manifold Absolute Pressure/Barometric Pressure Circuit Malfunction"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 4, OBD_DTC_Code.P0110,
-                    "Valves AV", "Outlet Valve Failure - Front"));
+                    "air/fuel mixture control", "Intake Air Temperature Circuit Malfunction"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 5, OBD_DTC_Code.P0115,
-                    "Valves AV", "Outlet Valve Failure - Rear"));
+                    "air/fuel mixture control", "Engine Coolant Temperature Circuit Malfunction"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 6, OBD_DTC_Code.P0120,
-                    "UZ", "Battery Voltage Fault (Over-Voltage)"));
+                    "air/fuel mixture control", "Throttle Pedal Position Sensor/Switch A Circuit Malfunction"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(0, 7, OBD_DTC_Code.P0130,
-                    "UZ", "Battery Voltage Fault (Under-Voltage)"));
+                    "air/fuel mixture control", "O2 Sensor Circuit Malfunction (Bank 2 Sensor 1)"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 0, OBD_DTC_Code.P0135,
-                    "RFP/RFP_HW", "Pump Motor Failure"));
+                    "air/fuel mixture control", "O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 1)"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 1, OBD_DTC_Code.P0150,
-                    "WSS_Ohmic", "WSS ohmic Failure - Front"));
+                    "air/fuel mixture control", "O2 Sensor Circuit Malfunction (Bank 2 Sensor 1)"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 2, OBD_DTC_Code.P0155,
-                    "WSS_Ohmic", "WSS ohmic Failure - Rear"));
+                    "air/fuel mixture control", "O2 Sensor Heater Circuit Malfunction (Bank 2 Sensor 1)"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 3, OBD_DTC_Code.P0201,
-                    "WSS_Plausibility", "WSS Plausibility Failure - Front"));
+                    "air/fuel mixture control", "Injector Circuit Malfunction - Cylinder 1"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 4, OBD_DTC_Code.P0202,
-                    "WSS_Plausibility", "WSS Plausibility Failure - Rear"));
+                    "air/fuel mixture control", "Injector Circuit Malfunction - Cylinder 2"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 5, OBD_DTC_Code.P0217,
-                    "WSS_Generic", "WSS Generic Failure"));
+                    "air/fuel mixture control", "Engine Overtemp Condition"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 6, OBD_DTC_Code.P0230,
-                    "WSS_Generic", "WSS Generic Failure"));
+                    "air/fuel mixture control", "Fuel Pump Primary Circuit Malfunction"));
+            // Failure Type and Description needs to be updated from here
             obd_dtc_table.Add(new CMD_F_OBD_DTC(1, 7, OBD_DTC_Code.P0335,
                     "WSS_Generic", "WSS Generic Failure"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 0, OBD_DTC_Code.P0336,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 1, OBD_DTC_Code.P0351,
@@ -166,6 +168,7 @@ namespace DTC_OBD
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(2, 7, OBD_DTC_Code.P0505,
                     "WSS_Generic", "WSS Generic Failure"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 0, OBD_DTC_Code.P0512,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 1, OBD_DTC_Code.P0560,
@@ -179,9 +182,10 @@ namespace DTC_OBD
             obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 5, OBD_DTC_Code.P0606,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 6, OBD_DTC_Code.P0620_PIN2,
-                    "WSS_Generic", "WSS Generic Failure"));
+                    "Onboard computer and ancillary outputs", "Generator Control Circuit Malfunction"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(3, 7, OBD_DTC_Code.P0620_PIN31,
-                    "WSS_Generic", "WSS Generic Failure"));
+                    "Onboard computer and ancillary outputs", "Generator Control Circuit Malfunction"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 0, OBD_DTC_Code.P0650,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 1, OBD_DTC_Code.P0655,
@@ -198,6 +202,7 @@ namespace DTC_OBD
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(4, 7, OBD_DTC_Code.P1800,
                     "WSS_Generic", "WSS Generic Failure"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 0, OBD_DTC_Code.P2158,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 1, OBD_DTC_Code.P2600,
@@ -214,6 +219,7 @@ namespace DTC_OBD
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(5, 7, OBD_DTC_Code.U0140,
                     "WSS_Generic", "WSS Generic Failure"));
+
             obd_dtc_table.Add(new CMD_F_OBD_DTC(6, 0, OBD_DTC_Code.U0426,
                     "WSS_Generic", "WSS Generic Failure"));
             obd_dtc_table.Add(new CMD_F_OBD_DTC(6, 1, OBD_DTC_Code.U0486,
