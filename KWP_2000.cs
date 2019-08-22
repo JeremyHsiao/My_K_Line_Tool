@@ -206,7 +206,7 @@ namespace KWP_2000
         }
 
 
-        public bool ProcessMessage_ABS(BlockMessage abs_msg, ref BlockMessage ResponseMessage)
+        private bool ProcessMessage_ABS(BlockMessage abs_msg, ref BlockMessage ResponseMessage)
         {
             bool bRet = false;
 
@@ -266,7 +266,7 @@ namespace KWP_2000
             return out_msg;
         }
 
-        public bool ProcessMessage_OBD(BlockMessage obd_msg, ref BlockMessage ResponseMessage)
+        private bool ProcessMessage_OBD(BlockMessage obd_msg, ref BlockMessage ResponseMessage)
         {
             bool bRet = false;
 
