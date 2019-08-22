@@ -106,6 +106,7 @@ namespace KWP_2000
         public const byte Lamp_ON_Failure_Reset  = 0xA0;
         public byte[] dtc_status_table = { Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };  // bit 7: lamp off/on (always on here); bit 6,5: 01/11 = failure is reset/set at time of request
         private byte[] dtc_status_table_lamp_may_by_off = { Lamp_OFF_Failure_Reset, Lamp_OFF_Failure_Set, Lamp_ON_Failure_Reset, Lamp_ON_Failure_Set };
+        public byte[] dtc_status_table_for_obd = { 0x61, 0x62 };
         private Queue<DTC_Data> ABS_DTC_Data_Queue = new Queue<DTC_Data>();
         private Queue<DTC_Data> OBD_DTC_Data_Queue = new Queue<DTC_Data>();
 
@@ -174,34 +175,6 @@ namespace KWP_2000
             status_of_dtc_list.AddRange(ret_list);
             return status_of_dtc_list;
         }
-
-        //private List<byte> GenerateRandomResponseData_ABS()
-        //{
-        //    Random rs = new Random();
-        //    List<byte> ret_list = new List<byte>();
-        //    CMD_E_ABS_DTC random_dtc;
-        //    uint dtc;
-
-        //    Byte DTC_no = (byte)(rs.Next(20));
-        //    DTC_no = (byte)((DTC_no <= ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
-        //    ret_list.Add(DTC_no);
-        //    for (int no = 0; no < DTC_no; no++)
-        //    {
-        //        random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
-        //        dtc = (uint)random_dtc.DTC;
-        //        ret_list.Add((byte)(dtc >> 8));               // HighByte
-        //        ret_list.Add((byte)(dtc & 0xff));             // LowByte
-        //        ret_list.Add((byte)dtc_status_table[rs.Next(dtc_status_table.Length)]);        // Status DTC -- randon values 
-        //    }
-        //    return ret_list;
-        //}
-
-        //private List<byte> GenerateFixednResponseData_ABS()
-        //{
-        //    List<byte> ret_list = new List<byte>();
-        //    ret_list.AddRange(fixed_response_data_abs);
-        //    return ret_list;
-        //}
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_ABS(BlockMessage in_msg, ref BlockMessage out_msg)
         {
@@ -286,18 +259,6 @@ namespace KWP_2000
 
         private uint ReadDiagnosticTroubleCodesByStatus_OBD_StatusOfDTC = 0;
         private uint ReadDiagnosticTroubleCodesByStatus_OBD_GroupOfDTC = 0;
-        private byte []fixed_response_data_obd = { 0x04, 0x01, 0x15, 0x61, 0x40, 0x85, 0x62, 0x02, 0x30, 0x62, 0xC4, 0x86, 0x62 };
-        // P0115: 0x0115
-        // C0085: 0x4085
-        // P0230: 0x0230
-        // U0486: 0xC486
-
-        private List<byte> GenerateFixednResponseData_OBD()
-        {
-            List<byte> ret_list = new List<byte>();
-            ret_list.AddRange(fixed_response_data_obd);
-            return ret_list;
-        }
 
         private BlockMessage PrepareResponse_ReadDiagnosticTroubleCodesByStatus_OBD(BlockMessage in_msg, ref BlockMessage out_msg)
         {

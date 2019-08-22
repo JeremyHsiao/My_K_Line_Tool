@@ -129,17 +129,35 @@ namespace K_Line_Test
             kwp2000.ABS_DTC_Queue_Add(0x50, 0x45, 0xE0);
             kwp2000.ABS_DTC_Queue_Add(0x50, 0x52, 0xA0);
             kwp2000.ABS_DTC_Queue_Add(0x50, 0x53, 0xA0);
+            // byte[] fixed_response_data_obd = { 0x04, 0x01, 0x15, 0x61, 0x40, 0x85, 0x62, 0x02, 0x30, 0x62, 0xC4, 0x86, 0x62 };
+            // P0115: 0x0115
+            // C0085: 0x4085
+            // P0230: 0x0230
+            // U0486: 0xC486
+            kwp2000.OBD_DTC_Queue_Add(0x01, 0x15, 0x61);
+            kwp2000.OBD_DTC_Queue_Add(0x40, 0x85, 0x62);
+            kwp2000.OBD_DTC_Queue_Add(0x02, 0x30, 0x62);
+            kwp2000.OBD_DTC_Queue_Add(0xC4, 0x86, 0x62);
         }
-
+        //
         private void Use_Random_DTC(KWP_2000_Process kwp2000)
         {
             Random rs = new Random();
-            Byte DTC_no = (byte)(rs.Next(10));
+            Byte DTC_no;
+            DTC_no = (byte)(rs.Next(10));
             DTC_no = (byte)((DTC_no <= KWP_2000_Process.ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
             for (int no = 0; no < DTC_no; no++)
             {
                 CMD_E_ABS_DTC random_dtc = ABS_DTC_Table.Find_ABS_DTC(rs.Next(ABS_DTC_Table.Count()));
                 kwp2000.ABS_DTC_Queue_Add(random_dtc, (byte)kwp2000.dtc_status_table[rs.Next(kwp2000.dtc_status_table.Length)]);
+            }
+            // for OBD
+            DTC_no = (byte)(rs.Next(10));
+            DTC_no = (byte)((DTC_no <= KWP_2000_Process.ReadDiagnosticCodesByStatus_MaxNumberOfDTC) ? DTC_no : 0);
+            for (int no = 0; no < DTC_no; no++)
+            {
+                CMD_F_OBD_DTC random_dtc = OBD_DTC_Table.Find_OBD_DTC(rs.Next(OBD_DTC_Table.Count()));
+                kwp2000.OBD_DTC_Queue_Add(random_dtc, (byte)kwp2000.dtc_status_table_for_obd[rs.Next(kwp2000.dtc_status_table_for_obd.Length)]);
             }
         }
 
