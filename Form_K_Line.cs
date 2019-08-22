@@ -191,43 +191,52 @@ namespace K_Line_Test
 
         }
 
+        private void DisplayKLineBlockMessage(RichTextBox rtb, String msg)
+        {
+            String current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
+            rtb.AppendText(current_time_str + msg + "\n");
+            rtb.ScrollToCaret();
+        }
+
         private void Tmr_FetchingUARTInput_Tick(object sender, EventArgs e)
         {
-            String current_time_str;
-
             // Regularly polling request message
             while (MySerialPort.KLineBlockMessageList.Count() > 0)
             {
-                current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
-                BlockMessage message = MySerialPort.KLineBlockMessageList[0];
+                // Pop 1st KLine Block Message
+                BlockMessage in_message = MySerialPort.KLineBlockMessageList[0];
                 MySerialPort.KLineBlockMessageList.RemoveAt(0);
+
+                // Display debug message on RichTextBox
                 String raw_data_in_string = MySerialPort.KLineRawDataInStringList[0];
                 MySerialPort.KLineRawDataInStringList.RemoveAt(0);
-                //rtbKLineData.AppendText(current_time_str + raw_data_in_string + "\n");
+                //DisplayKLineBlockMessage(rtbKLineData, raw_data_in_string);
                 String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
                 MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
-                rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
-                rtbKLineData.ScrollToCaret();
+                DisplayKLineBlockMessage(rtbKLineData, message_in_string);
 
+                // Process input Kline message and generate output KLine message
                 BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
-                BlockMessage out_message = new BlockMessage();
                 KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
+                BlockMessage out_message = new BlockMessage();
                 //Use_Random_DTC(kwp_2000_process);  // Random Test
                 //Use_Fixed_DTC_from_HQ(kwp_2000_process);  // Simulate response from a ECU device
                 Scan_DTC_from_UI(kwp_2000_process);  // Scan Checkbox status and add DTC into queue
-                kwp_2000_process.ProcessMessage(message, ref out_message);
+                kwp_2000_process.ProcessMessage(in_message, ref out_message);
                 List<byte> output_data = new List<byte>();
                 out_str_proc.GenerateSerialOutput(out output_data, out_message);
 
+                // NOTE: because we will also receive all data sent by us, we need to tell UART to skip all data to be sent by SendToSerial
                 MySerialPort.Add_ECU_Filtering_Data(output_data);
                 MySerialPort.Enable_ECU_Filtering(true);
+                // Send output KLine message via UART (after some delay)
                 Thread.Sleep((KWP_2000_Process.min_delay_before_response-1));
-                current_time_str = DateTime.Now.ToString("[HH:mm:ss.fff] ");
                 MySerialPort.SendToSerial(output_data.ToArray());
+
+                // Show output KLine message for debug purpose
                 message_in_string = out_str_proc.GetSerialOutputString();
-                rtbKLineData.AppendText(current_time_str + message_in_string + "\n");
-                rtbKLineData.ScrollToCaret();
-            }
+                DisplayKLineBlockMessage(rtbKLineData, message_in_string);
+             }
         }
 
 
