@@ -49,13 +49,10 @@ namespace KWP_2000
             MAX_SID_PLUS_1
         };
 
-
-        //private BlockMessage InComingMessage = new BlockMessage();
         private BlockMessage ResponseMessage = new BlockMessage();
 
         public KWP_2000_Process()
         {
-            //InComingMessage.ClearBlockMessage();
             ResponseMessage.ClearBlockMessage();
         }
 

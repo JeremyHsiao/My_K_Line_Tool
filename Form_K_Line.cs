@@ -210,22 +210,20 @@ namespace K_Line_Test
                 // Display debug message on RichTextBox
                 String raw_data_in_string = MySerialPort.KLineRawDataInStringList[0];
                 MySerialPort.KLineRawDataInStringList.RemoveAt(0);
-                //DisplayKLineBlockMessage(rtbKLineData, raw_data_in_string);
-                String message_in_string = MySerialPort.KLineBlockMessageInStringList[0];
-                MySerialPort.KLineBlockMessageInStringList.RemoveAt(0);
-                DisplayKLineBlockMessage(rtbKLineData, message_in_string);
+                DisplayKLineBlockMessage(rtbKLineData, "raw_input: " + raw_data_in_string);
+                DisplayKLineBlockMessage(rtbKLineData, "In - " + in_message.GenerateDebugString());
 
                 // Process input Kline message and generate output KLine message
-                //BlockMessageForSerialOutput out_str_proc = new BlockMessageForSerialOutput();
                 KWP_2000_Process kwp_2000_process = new KWP_2000_Process();
                 BlockMessage out_message = new BlockMessage();
+                
                 //Use_Random_DTC(kwp_2000_process);  // Random Test
                 //Use_Fixed_DTC_from_HQ(kwp_2000_process);  // Simulate response from a ECU device
                 Scan_DTC_from_UI(kwp_2000_process);  // Scan Checkbox status and add DTC into queue
+
                 kwp_2000_process.ProcessMessage(in_message, ref out_message);
                 List<byte> output_data;
                 out_message.GenerateSerialOutput(out output_data);
-                //out_str_proc.GenerateSerialOutput(out output_data, out_message);
 
                 // NOTE: because we will also receive all data sent by us, we need to tell UART to skip all data to be sent by SendToSerial
                 MySerialPort.Add_ECU_Filtering_Data(output_data);

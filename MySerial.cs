@@ -216,13 +216,12 @@ namespace MySerialLibrary
         //
 
         public List<BlockMessage> KLineBlockMessageList = new List<BlockMessage>();
-        public List<String> KLineBlockMessageInStringList = new List<String>();
         public List<String> KLineRawDataInStringList = new List<String>();
         private String RawDataInString = "";
 
         private ProcessBlockMessage KLineKWP2000Process = new ProcessBlockMessage();
 
-       private bool ECU_filtering = false;
+        private bool ECU_filtering = false;
         private List<byte> ECU_data_to_be_filtered = new List<byte>();
 
         public void Enable_ECU_Filtering(bool enabled)
@@ -265,10 +264,8 @@ namespace MySerialLibrary
                     IsMessageReady = myserial.KLineKWP2000Process.ProcessNextByte(byte_data);
                     if (IsMessageReady)
                     {
-                        BlockMessage new_message = myserial.KLineKWP2000Process.GetBlockMessage();
-                        String new_message_in_string = myserial.KLineKWP2000Process.GetBlockMessageString();
+                        BlockMessage new_message = myserial.KLineKWP2000Process.GetProcessedBlockMessage();
                         myserial.KLineBlockMessageList.Add(new_message);
-                        myserial.KLineBlockMessageInStringList.Add(new_message_in_string);
                         myserial.KLineRawDataInStringList.Add(myserial.RawDataInString);
                         myserial.RawDataInString = "";
                         IsMessageReady = false;
