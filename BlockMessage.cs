@@ -225,6 +225,59 @@ namespace BlockMessageLibrary
             return bRet;
         }
 
+        public String GenerateDebugString()
+        {
+            String out_msg_data_in_string = "" ;
+            byte byte_data;
+
+            // First calculate data length
+            uint len = this.GetMessageTotalLen();
+
+            if ((this.GetFmt() & ~BlockMessage.Max_Len_6Bit) == ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6))
+            {
+                // This for format 2 or 4 
+                // Common portion
+                out_msg_data_in_string = "";
+                byte_data = this.GetFmt();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                byte_data = this.GetTA();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                byte_data = this.GetSA();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+
+                if (((this.GetFmt() & BlockMessage.Max_Len_6Bit) == 0x00) || (len > BlockMessage.Max_Len_6Bit)) 
+                {
+                    // Format 4
+                    out_msg_data_in_string = "Format 4 - " + out_msg_data_in_string;
+                    byte_data = this.GetLenByte();
+                    out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                }
+                else if (len <= BlockMessage.Max_Len_6Bit)     // max 6-bit when there isn't extra length byte
+                {
+                    // Format 2
+                    out_msg_data_in_string = "Format 2 - " + out_msg_data_in_string;
+                }
+                else
+                {
+                    out_msg_data_in_string = "Data Error - to be checked.";
+                }
+                // Common Part
+                byte_data = this.GetSID();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+                foreach (byte element in this.GetDataList())
+                {
+                    out_msg_data_in_string += element.ToString("X2") + " ";
+                }
+                byte_data = this.GetCheckSum();
+                out_msg_data_in_string += byte_data.ToString("X2") + " ";
+            }
+            else
+            {
+                // Format 1/3 to be implemented in the future
+            }
+
+            return out_msg_data_in_string;
+        }
     }
 
     // This class is for processing input block message from serial input

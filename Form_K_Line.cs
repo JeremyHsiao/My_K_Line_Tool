@@ -235,8 +235,7 @@ namespace K_Line_Test
                 MySerialPort.SendToSerial(output_data.ToArray());
 
                 // Show output KLine message for debug purpose
-//                message_in_string = out_str_proc.GetSerialOutputString();
-//                DisplayKLineBlockMessage(rtbKLineData, message_in_string);
+                DisplayKLineBlockMessage(rtbKLineData, "Out - " + out_message.GenerateDebugString());
              }
         }
 
