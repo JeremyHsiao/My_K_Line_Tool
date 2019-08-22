@@ -145,8 +145,11 @@ namespace K_Line_Test
 
         private void Scan_DTC_from_UI(KWP_2000_Process kwp2000)
         {
-            uint byte_bit_index = 0;
+            // CheckBox lut of UI must be listed accroding to its byte/bit index.
 
+            uint byte_bit_index;
+
+            byte_bit_index = 0;
             foreach (var item in abs_lut)
             {
                 if (item.Checked == true)
@@ -157,6 +160,7 @@ namespace K_Line_Test
                 byte_bit_index++;
             }
 
+            byte_bit_index = 0;
             foreach (var item in obd_lut)
             {
                 if (item.Checked == true)
