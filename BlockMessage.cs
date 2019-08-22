@@ -171,6 +171,60 @@ namespace BlockMessageLibrary
 
         public byte UpdateCheckSum(byte next_byte) { CheckSum += next_byte; return CheckSum; }
 
+        public bool GenerateSerialOutput(out List<byte> SerialOutputDataList)
+        {
+            bool bRet = false;
+            byte byte_data;
+
+            SerialOutputDataList = new List<byte>();
+
+            // First calculate data length
+            uint len = this.GetMessageTotalLen();
+
+            if ((this.GetFmt() & ~BlockMessage.Max_Len_6Bit) == ((byte)(MSG_A1A0_MODE.WITH_ADDRESS_INFO) << 6))
+            {
+                // This for format 2 or 4 
+                // Common portion
+                byte_data = this.GetFmt();
+                SerialOutputDataList.Add(byte_data);
+                byte_data = this.GetTA();
+                SerialOutputDataList.Add(byte_data);
+                byte_data = this.GetSA();
+                SerialOutputDataList.Add(byte_data);
+
+                if ((this.GetFmt() & BlockMessage.Max_Len_6Bit) == 0x00) 
+                {
+                    // Format 4
+                    byte_data = this.GetLenByte();
+                    SerialOutputDataList.Add(byte_data);
+                    bRet = true;
+                }
+                else if (len <= BlockMessage.Max_Len_6Bit)     // max 6-bit when there isn't extra length byte
+                {
+                    // Format 2
+                     bRet = true;
+                }
+                else
+                {
+                    // Error in Len
+                }
+                // Common Part
+                byte_data = this.GetSID();
+                SerialOutputDataList.Add(byte_data);
+                foreach (byte element in this.GetDataList())
+                {
+                    SerialOutputDataList.Add(element);
+                }
+                byte_data = this.GetCheckSum();
+                SerialOutputDataList.Add(byte_data);
+            }
+            else
+            {
+                // Format 1/3 to be implemented in the future
+            }
+            return bRet;
+        }
+
     }
 
     // This class is for generating output block message for serial output
