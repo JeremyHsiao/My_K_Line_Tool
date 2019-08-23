@@ -258,5 +258,50 @@ namespace DTC_OBD
         {
             return OBD_DTC_Table.Count();
         }
+
+        enum DTC_Prefix
+        {
+            P = 0x0000,
+            C = 0x4000,
+            B = 0x8000,
+            U = 0xC000
+        }
+
+        static public OBD_DTC_Code GetDTCValueFromString(String dtc_code_str)
+        {
+            uint dtc_value = 0;
+
+            return (OBD_DTC_Code) dtc_value;
+        }
+
+        static public String GetDTCStringFromValue(uint dtc_value)
+        {
+            String ret_str = "";
+            dtc_value &= 0xffff;
+
+            switch ((DTC_Prefix)(dtc_value & 0xC000))
+            {
+                case DTC_Prefix.P:
+                    ret_str = "P";
+                    break;
+                case DTC_Prefix.C:
+                    ret_str = "C";
+                    break;
+                case DTC_Prefix.B:
+                    ret_str = "B";
+                    break;
+                case DTC_Prefix.U:
+                    ret_str = "U";
+                    break;
+            }
+            ret_str += (dtc_value & 0x3fff).ToString("X4");
+
+            return ret_str;
+        }
+
+        static public String GetDTCStringFromValue(OBD_DTC_Code dtc_code)
+        {
+            return GetDTCStringFromValue((uint)dtc_code);
+        }
     }
 }
