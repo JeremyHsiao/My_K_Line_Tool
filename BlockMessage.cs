@@ -501,13 +501,16 @@ namespace BlockMessageLibrary
             return bRet;
         }
 
-        private const int P3_Time = 5000; // 5000ms
-        private static Timer aTimer = new Timer(P3_Time); 
+        public const int P2_Time_min = 25;
+        public const int P2_Time_max = 50;
+        public const int P3_Time_min = 25;
+        public const int P3_Time_max = 5000; // 5000ms
+        private static Timer aTimer = new Timer(P3_Time_max); 
         private static bool P3_Timeout_Flag = false;
 
         private static void SetP3Timer()
         {
-            aTimer = new System.Timers.Timer(P3_Time);
+            aTimer = new System.Timers.Timer(P3_Time_max);
             aTimer.Elapsed += OnP3TimedEvent;
             aTimer.AutoReset = false;
             P3_Timeout_Flag = false;
