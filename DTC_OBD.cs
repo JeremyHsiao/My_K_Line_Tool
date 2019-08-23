@@ -271,7 +271,27 @@ namespace DTC_OBD
         {
             uint dtc_value = 0;
 
-            return (OBD_DTC_Code) dtc_value;
+            dtc_code_str.ToUpper();
+            char chr = dtc_code_str.ElementAt(0);
+            switch (chr)
+            {
+                case 'P':
+                    dtc_value |= (uint)DTC_Prefix.P;
+                    break;
+                case 'C':
+                    dtc_value |= (uint)DTC_Prefix.C;
+                    break;
+                case 'B':
+                    dtc_value |= (uint)DTC_Prefix.B;
+                    break;
+                case 'U':
+                    dtc_value |= (uint)DTC_Prefix.U;
+                    break;
+            }
+            dtc_code_str = dtc_code_str.Substring(1, dtc_code_str.Length - 1);
+            dtc_value |= (Convert.ToUInt32(dtc_code_str, 16)&0x3fff);
+
+            return (OBD_DTC_Code)dtc_value;
         }
 
         static public String GetDTCStringFromValue(uint dtc_value)
